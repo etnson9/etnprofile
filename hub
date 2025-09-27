@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETNS PROFILE - Threads of Destiny</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Fonts: Cinzel (for titles/headings) and Inter (for body) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght[300;400;700]&display=swap" rel="stylesheet">
+    <!-- Load Lucide Icons for aesthetic elements -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Load Tone.js for synthesized, themed sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        /* Custom CSS Variables */
+        :root {
+            --primary-accent: #8B0000; /* Deep Crimson Red */
+            --bg-dark: #070707;
+            --card-bg: #151515;
+            --accent-bg: #222222;
+            --font-title: 'Cinzel', serif;
+            --font-body: 'Inter', sans-serif;
+            --motion-blur-intensity: 1px;
+        }
+
+        /* Apply custom fonts and base colors */
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: #E5E5E5;
+            /* 1. Crosshair Cursor (Default state) */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-crosshair"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="16" y2="12"/><line x1="8" y1="12" x2="2" y2="12"/><line x1="12" y1="22" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="2"/></svg>') 16 16, crosshair;
+        }
+
+        /* Hover Cursor: Laser Pointer (red dot) - applied to ALL elements on hover */
+        *:hover { 
+            /* Red dot SVG */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="red"/></svg>') 8 8, pointer !important; 
+        }
+
+        /* 2. Hitmarker Cursor on Click (Active State) */
+        body:active {
+            /* Using a simplified target pointer for reliability */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>') 16 16, pointer;
+        }
+
+        /* Title styling with Cinzel font */
+        .title-font {
+            font-family: var(--font-title);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* ---------------------------------- */
+        /* Custom Keyframes */
+        /* ---------------------------------- */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Keyframes for the Brand of Sacrifice Pulse */
+        @keyframes brand-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 0, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 0, 0, 0); }
+        }
+
+        /* Keyframes for CTA Button Click Glow */
+        @keyframes cta-click-glow {
+            0% { box-shadow: 0 0 10px var(--primary-accent), 0 0 20px var(--primary-accent); }
+            50% { box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
+            100% { box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4); }
+        }
+        
+        /* ---------------------------------- */
+        /* Custom Component Styling */
+        /* ---------------------------------- */
+
+        /* Brand Profile Image Wrapper: Use bg-black for solid background */
+        .brand-profile {
+            position: relative;
+            /* Apply the pulse animation */
+            animation: brand-pulse 2s infinite cubic-bezier(0.66, 0.1, 0.28, 0.9);
+            /* Important for GIF clipping */
+            overflow: hidden; 
+        }
+
+        /* Profile GIF Container Fix (Scoped to circular brand-profile) */
+        .brand-profile .tenor-gif-embed {
+            position: absolute; 
+            top: 50%;
+            left: 50%;
+            /* Tighter translation and zoom for circular crop */
+            transform: translate(-55%, -55%); 
+            height: 110%; 
+            width: 110%; 
+        }
+
+        /* Banner GIF Container Fix (Scoped to rectangular banner) */
+        .banner-gif-wrapper .tenor-gif-embed {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Centered translation and slight zoom for rectangular crop */
+            transform: translate(-50%, -50%); 
+            height: 105%; 
+            width: 105%;
+        }
+
+        /* Custom Button Styling */
+        .berserk-btn {
+            background-color: var(--primary-accent);
+            transition: all 0.3s ease-in-out, filter 0.2s;
+            box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
+            filter: none; 
+        }
+
+        .berserk-btn:hover {
+            background-color: #A52A2A;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(165, 42, 42, 0.8), 0 0 15px rgba(165, 42, 42, 0.6) inset;
+            /* Subtle 'Motion Blur' effect on hover */
+            filter: blur(var(--motion-blur-intensity)) contrast(1.2) brightness(1.1); 
+        }
+        
+        /* Navigation and General Link Hover */
+        .nav-link {
+            transition: background-color 0.2s, backdrop-filter 0.2s, color 0.2s, transform 0.2s;
+        }
+        .nav-link:hover {
+            background-color: #A52A2A1A; 
+            backdrop-filter: blur(2px);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Glaze Effect for Feature Boxes */
+        .glaze-box {
+            background: linear-gradient(135deg, var(--accent-bg) 0%, var(--card-bg) 100%);
+            border: 2px solid var(--primary-accent);
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.3);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .glaze-box:hover {
+             transform: translateY(-5px) scale(1.02);
+             box-shadow: 0 15px 30px rgba(139, 0, 0, 0.8);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Main Container -->
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- 1. Sidebar/Header (Left-aligned on Desktop, Top-aligned on Mobile) -->
+        <header class="lg:w-72 p-6 lg:h-screen lg:sticky lg:top-0 bg-black shadow-xl shadow-black/90 border-r border-red-900 z-10">
+            <div class="flex flex-col space-y-8">
+                <!-- Profile Title -->
+                <h1 class="title-font text-3xl font-black text-white text-shadow-red">ETNS PROFILE</h1>
+                <p class="text-xs text-red-700 text-center uppercase tracking-widest font-bold">
+                    Designs of Destiny
+                </p>
+
+                <!-- Profile GIF: New Tenor Embed with circular clipping (bg-black applied) -->
+                <!-- The .brand-profile class handles the circular GIF sizing fix via CSS -->
+                <div class="w-28 h-28 mx-auto border-4 border-red-700 rounded-full brand-profile bg-black relative">
+                    <div class="tenor-gif-embed" data-postid="5769121116284891944" data-share-method="host" data-aspect-ratio="0.9" data-width="100%">
+                        <a href="https://tenor.com/view/berserk-gif-5769121116284891944" class="text-xs text-red-500">Berserk GIF</a>
+                    </div>
+                </div>
+
+                <!-- Navigation/Quick Links -->
+                <nav class="space-y-2">
+                    <!-- Updated to point to the new Bio section ID -->
+                    <a href="#portfolio" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="user" class="inline-block w-5 h-5 mr-2"></i> Bio
+                    </a>
+                    <a href="#features" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="shield-check" class="inline-block w-5 h-5 mr-2"></i> Core Tenets
+                    </a>
+                    <a href="#products" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="package" class="inline-block w-5 h-5 mr-2"></i> Products
+                    </a>
+                    <a href="#music" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="music" class="inline-block w-5 h-5 mr-2"></i> Soundtrack
+                    </a>
+                    <!-- Tribute link remains pointing to #payments -->
+                    <a href="#payments" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="wallet" class="inline-block w-5 h-5 mr-2"></i> Tribute
+                    </a>
+                    <a href="#community" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="users" class="inline-block w-5 h-5 mr-2"></i> Community
+                    </a>
+                </nav>
+
+                <hr class="border-gray-800">
+
+                <!-- Customizable Primary Button Example (Now triggers Rickroll) -->
+                <button id="cta-button" class="interactive-element w-full p-3 rounded-xl font-bold berserk-btn text-white title-font">
+                    Initiate Connection
+                </button>
+            </div>
+        </header>
+
+
+        <!-- 2. Main Content Area (Centralized/Minimal Focus) -->
+        <main class="flex-1 p-6 lg:p-10 space-y-12">
+
+            <!-- Welcome Banner (Themed Header with GIF Embed) -->
+            <section class="bg-black p-8 rounded-xl shadow-2xl shadow-black/80 border border-red-900 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                
+                <!-- GIF EMBED AREA (Tenor) -->
+                <!-- Added banner-gif-wrapper class for the new specific CSS styling -->
+                <div class="flex-shrink-0 w-full md:w-1/3 max-w-xs h-36 rounded-lg overflow-hidden border-2 border-red-700 bg-gray-800 relative shadow-xl banner-gif-wrapper">
+                    <!-- Main Tenor GIF Embed -->
+                    <div class="tenor-gif-embed" data-postid="12587464080199064649" data-share-method="host" data-aspect-ratio="1.31053" data-width="100%" style="height: 100%;">
+                        <a href="https://tenor.com/view/berserk-guts-realayax-ayax-ayaz-gif-12587464080199064649" class="text-xs text-red-500">Berserk Guts GIF</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="title-font text-4xl lg:text-5xl font-extrabold text-red-600 mb-2">
+                        Woven By The God Hand.
+                    </h2>
+                    <p class="text-gray-400 text-lg">
+                        This is my development hub, a place to showcase digital projects and connect with the community.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- 3. Bio Section (The Struggler's Manifesto) - Casual and Expanded -->
+            <section id="portfolio" class="space-y-6">
+                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">THE STRUGGLER'S MANIFESTO</h3>
+                <div class="glaze-box p-8 rounded-xl shadow-2xl transition duration-300 border-red-600/50">
+                    <p class="text-3xl title-font text-red-400 mb-4 tracking-wider">
+                        // HEY THERE! I'M ETN.
+                    </p>
+                    <p class="text-gray-300 text-lg leading-relaxed mb-6 border-l-4 border-red-700 pl-4">
+                        I'm a dedicated **Website Developer** and **Software Developer** who genuinely enjoys building awesome stuff from the ground up. I focus on creating robust, high-performance systems and dynamic user interfaces that feel great to use. Whether it’s optimizing a backend service or perfecting a frontend component, I love bringing complex digital ideas to life!
+                    </p>
+                    
+                    <h4 class="title-font text-xl text-red-500 mb-3 mt-6">// MY TOOLKIT (What I Speak)</h4>
+                    <ul class="grid grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-6 text-gray-400 text-sm">
+                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-red-600"></i><span class="font-bold text-white">C++</span> (The Foundation)</li>
+                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-yellow-500"></i><span class="font-bold text-white">Python</span> (Logic & Automation)</li>
+                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-orange-400"></i><span class="font-bold text-white">HTML/CSS</span> (Design & Structure)</li>
+                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-blue-400"></i><span class="font-bold text-white">JavaScript</span> (Interactive Development)</li>
+                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-sky-400"></i><span class="font-bold text-white">React/Angular</span> (Frameworks)</li>
+                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-gray-500"></i><span class="font-bold text-white">...And much more.</span></li>
+                    </ul>
+
+                    <p class="text-gray-500 text-sm mt-8 pt-4 border-t border-gray-800 italic">
+                        Thanks for dropping by and checking out my corner of the web!
+                    </p>
+                </div>
+            </section>
+            
+            <!-- 5. Glazed Feature Boxes (Fast, Discrete, Untrackable, Unbannable, & More) -->
+            <section id="features" class="space-y-6">
+                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">CORE TENETS</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- FAST -->
+                    <div class="glaze-box p-6 rounded-xl text-center">
+                        <i data-lucide="zap" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
+                        <h4 class="title-font text-xl font-bold text-white mb-2">FAST</h4>
+                        <p class="text-gray-400 text-sm">Execution is instantaneous. Speed and efficiency are non-negotiable standards.</p>
+                    </div>
+
+                    <!-- DISCRETE -->
+                    <div class="glaze-box p-6 rounded-xl text-center">
+                        <i data-lucide="eye-off" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
+                        <h4 class="title-font text-xl font-bold text-white mb-2">DISCRETE</h4>
+                        <p class="text-gray-400 text-sm">Clean operations and private transactions are always prioritized.</p>
+                    </div>
+
+                    <!-- UNTRACKABLE -->
+                    <div class="glaze-box p-6 rounded-xl text-center">
+                        <i data-lucide="footprints" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
+                        <h4 class="title-font text-xl font-bold text-white mb-2">UNTRACKABLE</h4>
+                        <p class="text-gray-400 text-sm">Architecting secure and resilient systems that are hard to follow.</p>
+                    </div>
+                    
+                    <!-- UNBANNABLE (NEW) -->
+                    <div class="glaze-box p-6 rounded-xl text-center">
+                        <i data-lucide="server-off" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
+                        <h4 class="title-font text-xl font-bold text-white mb-2">UNBANNABLE</h4>
+                        <p class="text-gray-400 text-sm">Designed with stealth and resilience. Persistence is key to achieving goals.</p>
+                    </div>
+
+                    <!-- AND MORE (NEW) -->
+                    <div class="glaze-box p-6 rounded-xl text-center">
+                        <i data-lucide="ellipsis" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
+                        <h4 class="title-font text-xl font-bold text-white mb-2">& MORE...</h4>
+                        <p class="text-gray-400 text-sm">Always innovating, always moving forward. New features drop constantly.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 6. PRODUCTS SECTION (NEW) -->
+            <section id="products" class="space-y-6">
+                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">
+                    YOU WANNA BUY PRODUCTS IVE MADE? HERE YOU ARE
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Product 1: ETNBOT -->
+                    <div class="glaze-box p-6 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <i data-lucide="bot" class="w-10 h-10 text-sky-400 mb-3"></i>
+                            <h4 class="title-font text-xl font-bold text-white mb-2">ETNBOT NITRO SNIPER</h4>
+                            <p class="text-gray-400 text-sm mb-4">
+                                this is etnbot the worlds best nitro sniper
+                            </p>
+                        </div>
+                        <a href="https://hoster1-p26cx6enm-seirtspids-projects.vercel.app/etnbot_sniper_thread_design.html" target="_blank" class="interactive-element w-full p-2 mt-4 rounded-lg font-bold berserk-btn text-white text-center">
+                            Purchase
+                        </a>
+                    </div>
+
+                    <!-- Product 2: Coming Soon -->
+                    <div class="glaze-box p-6 rounded-xl text-center flex flex-col items-center justify-center">
+                        <i data-lucide="loader" class="w-10 h-10 text-gray-500 mb-3 animate-spin"></i>
+                        <h4 class="title-font text-xl font-bold text-gray-500 mb-2">Product 2</h4>
+                        <p class="text-gray-500 text-sm">COMING SOON</p>
+                    </div>
+
+                    <!-- Product 3: Coming Soon -->
+                    <div class="glaze-box p-6 rounded-xl text-center flex flex-col items-center justify-center">
+                        <i data-lucide="loader" class="w-10 h-10 text-gray-500 mb-3 animate-spin"></i>
+                        <h4 class="title-font text-xl font-bold text-gray-500 mb-2">Product 3</h4>
+                        <p class="text-gray-500 text-sm">COMING SOON</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 7. Spotify/Music Section (LIVE EMBED) -->
+            <section id="music" class="space-y-6">
+                <!-- RENAMED: SOUNDTRACK OF THE HAWK (Project Music) to Soundtrack -->
+                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">Soundtrack</h3>
+
+                <div class="bg-gray-900 p-2 rounded-xl shadow-xl border border-red-900">
+                    <!-- Spotify Embed. Source URL will be set dynamically by JavaScript on load. -->
+                    <iframe 
+                        id="spotify-embed"
+                        style="border-radius:12px" 
+                        src="" 
+                        width="100%" 
+                        height="200" 
+                        frameBorder="0" 
+                        allowfullscreen="" 
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                        loading="lazy">
+                    </iframe>
+                    
+                </div>
+            </section>
+
+            <!-- 8. Payment Methods (Tiers of Sacrifice) -->
+            <section id="payments" class="space-y-6">
+                <!-- RENAMED: A TRIBUTE TO THE GOD HAND to Crypto Wallets & Paypal -->
+                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">Crypto Wallets & Paypal</h3>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Crypto Payments (Copy address on click) -->
+                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="bc1q22hmdy35ck278rdq376ynx0846xwgf289xg8vn">
+                        <!-- 'Scan-text' provides a generic, tech-themed crypto icon -->
+                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-yellow-500 mb-2"></i> 
+                        <p class="title-font text-sm font-bold text-white">BTC</p>
+                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
+                    </div>
+                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="LbjXnR5cA5DLoJ1LSgSnVa4CCdFzbngptQ">
+                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-gray-300 mb-2"></i>
+                        <p class="title-font text-sm font-bold text-white">LTC</p>
+                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
+                    </div>
+                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="GptR8TrPw8R1ChmRfJLyDS3ihnRa8V2t3ZMbLWf6aZBZ">
+                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-purple-400 mb-2"></i>
+                        <p class="title-font text-sm font-bold text-white">SOL</p>
+                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
+                    </div>
+                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="0x2390eb79E0436EcE58E6c171F1E0400e08AA1201">
+                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-sky-400 mb-2"></i>
+                        <p class="title-font text-sm font-bold text-white">ETH</p>
+                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
+                    </div>
+                    <!-- PayPal (Direct link navigation) -->
+                    <a href="https://www.paypal.com/ncp/payment/E57JDEF7FM28C" target="_blank" class="interactive-element bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 col-span-2 md:col-span-1 flex flex-col items-center justify-center">
+                        <i data-lucide="landmark" class="w-8 h-8 mx-auto text-blue-500 mb-2"></i>
+                        <p class="title-font text-sm font-bold text-white">PayPal</p>
+                    </a>
+                </div>
+
+            </section>
+            
+            <!-- 9. Community Section -->
+            <section id="community" class="space-y-6">
+                <!-- RENAMED: JOIN THE BAND OF THE HAWK to Join the discord! -->
+                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">Join the discord!</h3>
+                <div class="bg-gray-900 p-8 rounded-xl shadow-xl border border-red-900 flex flex-col items-center text-center">
+                    <!-- REMOVED: "Do you wish to join the covenant?..." paragraph -->
+                    <a id="discord-button" href="https://www.discord.gg/1ncel" target="_blank" class="interactive-element p-4 rounded-xl font-bold bg-[#5865F2] text-white title-font hover:bg-[#4752C4] transition duration-300 flex items-center space-x-2">
+                        <i data-lucide="message-square-text" class="w-6 h-6"></i>
+                        <span>CLICK HERE TO JOIN</span>
+                    </a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- RICKROLL MODAL (Hidden by default) -->
+    <div id="rickroll-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-gray-900 rounded-xl shadow-2xl border-4 border-red-700 w-full max-w-2xl overflow-hidden">
+            
+            <div class="p-6 border-b border-red-900 flex justify-between items-center">
+                <h3 class="title-font text-xl text-red-500">Connection Initiated!</h3>
+                <button id="close-rickroll" class="text-gray-400 hover:text-white transition duration-200 p-2 rounded-full hover:bg-red-800/30">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Video Container (16:9 Aspect Ratio) -->
+            <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                <iframe 
+                    id="rickroll-video-iframe"
+                    class="absolute top-0 left-0 w-full h-full"
+                    <!-- NOTE: Initial src is empty to prevent configuration errors before the modal is visible -->
+                    src="" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+             <div class="p-6 text-center">
+                <p class="text-gray-400 text-lg">
+                    You should know the rules!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity (SFX, Music, Payments, and Tenor Script) -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // ----------------------------------------------------
+        // THEMATIC SWORD SLASH SOUND EFFECTS (SFX) LOGIC - Tone.js
+        // ----------------------------------------------------
+        let sfxInitialized = false;
+        let sfxNoise;
+        let sfxFilter;
+        let sfxReverb;
+        
+        function initializeSfx() {
+            if (sfxInitialized) return;
+            try {
+                // Ensure audio context is started on user interaction
+                Tone.start(); 
+                sfxNoise = new Tone.Noise("white").toDestination();
+                sfxNoise.volume.value = -10;
+                sfxFilter = new Tone.Filter(0, "lowpass").toDestination();
+                sfxNoise.connect(sfxFilter);
+                sfxReverb = new Tone.Reverb(0.5).toDestination();
+                sfxFilter.connect(sfxReverb);
+                sfxInitialized = true;
+            } catch (error) {
+                console.error("Tone.js initialization failed:", error);
+            }
+        }
+
+        function playThematicSfx() {
+            if (!sfxInitialized) initializeSfx();
+            if (sfxNoise) {
+                const now = Tone.now();
+                const duration = 0.15;
+                sfxNoise.start(now).stop(now + duration);
+                sfxFilter.frequency.setValueAtTime(100, now);
+                sfxFilter.frequency.linearRampToValueAtTime(8000, now + 0.05);
+                sfxFilter.frequency.linearRampToValueAtTime(100, now + duration);
+            }
+        }
+        
+        document.querySelectorAll('.interactive-element, .berserk-btn').forEach(element => {
+            element.addEventListener('click', () => {
+                if (!sfxInitialized) initializeSfx();
+                playThematicSfx();
+            });
+        });
+
+        // ----------------------------------------------------
+        // SPOTIFY FIXED PLAYLIST LOGIC
+        // ----------------------------------------------------
+        const FIXED_PLAYLIST_ID = '7ASHXx9Hah5saHxR92tUS5';
+
+        function setFixedSpotifyPlaylist(playlistId) {
+            const embed = document.getElementById('spotify-embed');
+            if (embed) {
+                const baseUrl = 'https://open.spotify.com/embed/playlist/';
+                const fullUrl = `${baseUrl}${playlistId}?utm_source=generator&theme=0&view=list`;
+                embed.setAttribute('src', fullUrl);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+             setFixedSpotifyPlaylist(FIXED_PLAYLIST_ID);
+        });
+
+
+        // ----------------------------------------------------
+        // PAYMENT BUTTON LOGIC (Copy to Clipboard)
+        // ----------------------------------------------------
+        const paymentButtons = document.querySelectorAll('.payment-btn');
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                // Using execCommand for better compatibility in iframe environments
+                const successful = document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                return successful;
+            } catch (err) {
+                document.body.removeChild(tempInput);
+                console.error('Failed to copy to clipboard', err);
+                return false;
+            }
+        }
+
+        paymentButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const address = button.getAttribute('data-address');
+                const feedback = button.querySelector('.copy-feedback');
+                
+                if (address) {
+                    const success = copyToClipboard(address);
+                    
+                    if (success) {
+                        if (feedback) {
+                            feedback.textContent = 'Address Copied!';
+                            feedback.classList.remove('hidden');
+                            setTimeout(() => {
+                                feedback.classList.add('hidden');
+                            }, 1500);
+                        }
+                    } else {
+                         if (feedback) {
+                            feedback.textContent = 'Copy Failed!';
+                            feedback.classList.remove('hidden');
+                            setTimeout(() => {
+                                feedback.classList.add('hidden');
+                            }, 1500);
+                        }
+                    }
+                }
+            });
+        });
+        
+        // ----------------------------------------------------
+        // CTA Button (RICKROLL) Logic - FIX FOR ERROR 153
+        // ----------------------------------------------------
+        const ctaButton = document.getElementById('cta-button');
+        const rickrollModal = document.getElementById('rickroll-modal');
+        const rickrollIframe = document.getElementById('rickroll-video-iframe');
+        const closeButton = document.getElementById('close-rickroll');
+        
+        // FIX: Use youtube-nocookie.com, enablejsapi=1, and version=3 for maximum compatibility and to prevent config errors.
+        const RICKROLL_URL = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&modestbranding=1&rel=0&version=3&enablejsapi=1';
+
+        function openRickrollModal() {
+            // 1. Show the modal immediately
+            rickrollModal.classList.remove('hidden');
+            lucide.createIcons();
+            
+            // 2. Load the video source only AFTER the modal is visible to prevent Error 153
+            rickrollIframe.src = RICKROLL_URL;
+        }
+
+        function closeRickrollModal() {
+            rickrollModal.classList.add('hidden');
+            // Stop the video by resetting the iframe src immediately
+            rickrollIframe.src = ''; 
+        }
+        
+        // Event listeners for modal control
+        ctaButton.addEventListener('click', (e) => {
+            // Apply click glow effect (remove set timeout for instant reaction)
+            ctaButton.style.animation = 'cta-click-glow 0.8s ease-out';
+            openRickrollModal(); 
+            
+            // Remove animation after duration
+            setTimeout(() => {
+                ctaButton.style.animation = '';
+            }, 800);
+        });
+        
+        closeButton.addEventListener('click', closeRickrollModal);
+
+        // Allow closing modal by clicking outside it
+        rickrollModal.addEventListener('click', (e) => {
+            if (e.target === rickrollModal) {
+                closeRickrollModal();
+            }
+        });
+
+    </script>
+    <!-- Tenor Embed Script (Required for GIFs) -->
+    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+</body>
+</html>
