@@ -6,7 +6,11 @@
     <title>ETN Profile Nexus // The Struggler</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+    <!-- 
+        Standard Tenor script loading. This script looks for the 'tenor-gif-embed' divs 
+         and replaces them with iframes. 
+    -->
+    <script type="text/javascript" src="https://tenor.com/embed.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;700;900&display=swap');
         .font-cinzel { font-family: 'Cinzel', serif; }
@@ -33,9 +37,11 @@
         .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
 
         /* GIF Sizing Fixes for Tenor */
+        /* Ensures the Tenor div/iframe fills the container space correctly */
         .profile-gif-wrapper .tenor-gif-embed, .banner-gif-wrapper .tenor-gif-embed {
             width: 100%; height: 100%; position: relative;
         }
+        /* Aggressive styling to ensure the circular profile picture is filled and centered */
         .profile-gif-wrapper iframe {
             width: 120% !important; height: 120% !important;
             position: absolute; top: -10% !important; left: -10% !important;
@@ -62,7 +68,7 @@
         // --- Global Variables (Mandatory Contextual Variables) ---
         // This configuration is used only if the environment variable __firebase_config is not set or empty.
         const FALLBACK_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyC_NUR-AFRJypxvOjXNxB7jJ99hi8_p8SU",
+            apiKey: "AIzaSyC_NUR-AFRJypxvOjXNxB7jJ99hi_p8SU",
             authDomain: "etnprofile1.firebaseapp.com",
             projectId: "etnprofile1",
             storageBucket: "etnprofile1.firebasestorage.app",
@@ -167,6 +173,12 @@
             renderModal();
             // This is necessary to re-initialize lucide icons after injecting HTML
             lucide.createIcons();
+            
+            // CRITICAL: Re-run the Tenor embed logic after the dynamic content is rendered 
+            // This ensures the GIF embeds are turned into iframes and displayed.
+            if (window.tenor && window.tenor.init) {
+                window.tenor.init(); 
+            }
         };
         
         /**
@@ -178,7 +190,8 @@
 
             sidebar.innerHTML = `
                 <div class="flex flex-col items-center">
-                    <div class="w-32 h-32 bg-black rounded-full border-4 border-red-700 pulse-red overflow-hidden relative mb-4 profile-gif-wrapper">
+                    <div class="w-24 h-24 sm:w-32 sm:h-32 bg-black rounded-full border-4 border-red-700 pulse-red overflow-hidden relative mb-4 profile-gif-wrapper">
+                        <!-- Tenor Embed 1: Berserk Brand of Sacrifice GIF (5769121116284891944) -->
                         <div class="tenor-gif-embed" data-postid="5769121116284891944" data-share-method="host" data-aspect-ratio="0.9" data-width="100%">
                             <a href="https://tenor.com/view/berserk-gif-5769121116284891944">Berserk GIF</a>
                         </div> 
@@ -305,7 +318,7 @@
                                 height="380" 
                                 frameborder="0" 
                                 allowfullscreen="" 
-                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 loading="lazy"
                                 title="Spotify Playlist Embed"
                                 class="border-0"
@@ -338,6 +351,7 @@
                     <!-- WELCOME BANNER (GIF) -->
                     <div class="relative h-40 sm:h-64 bg-black rounded-xl overflow-hidden shadow-2xl shadow-red-900/70 border-4 border-red-700/70 mb-10">
                         <div class="relative w-full h-full banner-gif-wrapper">
+                            <!-- Tenor Embed 2: Berserk Guts running/walking GIF (12587464080199064649) -->
                             <div class="tenor-gif-embed" data-postid="12587464080199064649" data-share-method="host" data-aspect-ratio="1.31053" data-width="100%">
                                 <a href="https://tenor.com/view/berserk-guts-realayax-ayax-ayaz-gif-12587464080199064649">Berserk Guts GIF</a>
                             </div> 
@@ -371,6 +385,11 @@
             } else if (state.activeTab === 'hoster') {
                 attachHosterListeners();
             }
+            
+            // CRITICAL: Re-run the Tenor embed logic after the dynamic content is rendered
+            if (window.tenor && window.tenor.init) {
+                window.tenor.init(); 
+            }
         };
 
         /**
@@ -390,6 +409,7 @@
                             href="${link}" 
                             target="_blank" 
                             rel="noopener noreferrer"
+                            data-interactive="true"
                             onclick="playSwordSfx();"
                             class="inline-block px-5 py-2 bg-red-600 rounded-lg text-white font-bold hover:bg-red-700 transition duration-300 shadow-lg hover:shadow-red-500/50"
                         >
@@ -424,6 +444,7 @@
                                 </div>
                                 <p class="text-sm text-gray-400 truncate mb-4 font-mono">${method.type === 'link' ? method.address.split('/').slice(0, 3).join('/') : method.address}</p>
                                 <button
+                                    data-interactive="true"
                                     data-action="${method.type === 'link' ? 'link' : 'copy'}"
                                     data-address="${method.address}"
                                     class="wallet-action-btn mt-auto w-full py-2.5 rounded-lg text-base font-bold transition duration-200 shadow-md ${
@@ -475,6 +496,7 @@
                         href="https://www.discord.gg/1ncel" 
                         target="_blank" 
                         rel="noopener noreferrer"
+                        data-interactive="true"
                         onclick="playSwordSfx()"
                         class="w-full sm:w-96 py-4 bg-[#5865F2] text-white text-xl font-bold rounded-xl flex items-center justify-center space-x-3 transition duration-300 transform hover:scale-105 shadow-xl hover:shadow-[#5865F2]/60 border border-blue-400"
                     >
@@ -511,6 +533,14 @@
             const { file, uploadStatus, shareableUrl, isLoading } = hosterState;
             const isServiceReady = state.isAuthReady && authInitialized;
             
+            // Logic to determine if the button should be disabled
+            const isDisabled = !file || isLoading || !isServiceReady;
+            // FIX: Only include the 'disabled' attribute when it is true
+            const disabledAttribute = isDisabled ? 'disabled' : ''; 
+            const buttonClasses = isDisabled 
+                ? 'bg-gray-700 cursor-not-allowed' 
+                : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/60 transform hover:scale-[1.01]';
+
             return `
                 <div class="animate-fadeIn p-4 sm:p-8 max-w-4xl w-full mx-auto">
                     <h1 class="text-4xl sm:text-5xl font-cinzel font-extrabold text-red-500 mb-2 border-b-2 border-red-700 pb-2">
@@ -532,10 +562,9 @@
                         
                         <button
                             id="upload-btn"
-                            disabled="${!file || isLoading || !isServiceReady}"
-                            class="w-full py-3 rounded-xl text-white font-bold transition duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-red-800/40 ${
-                                !file || isLoading || !isServiceReady ? 'bg-gray-700 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/60 transform hover:scale-[1.01]'
-                            }"
+                            data-interactive="true"
+                            ${disabledAttribute}
+                            class="w-full py-3 rounded-xl text-white font-bold transition duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-red-800/40 ${buttonClasses}"
                         >
                             ${isLoading ? `
                                 <i data-lucide="Loader2" class="w-6 h-6 animate-spin"></i>
@@ -567,6 +596,7 @@
                                 />
                                 <button
                                     id="copy-btn"
+                                    data-interactive="true"
                                     class="p-3 bg-red-600 hover:bg-red-700 text-white transition duration-200 flex items-center space-x-2 font-bold"
                                 >
                                     <i data-lucide="Copy" class="w-5 h-5"></i>
@@ -645,6 +675,7 @@
                     throw lastError;
                 }
                 
+                // IMPORTANT: Construct the shareable URL with the viewer parameter
                 const newShareableUrl = `${TARGET_DOMAIN_URL}?view=${newDocId}`;
                 setHosterState({ 
                     shareableUrl: newShareableUrl, 
@@ -714,7 +745,7 @@
             const publicCollectionPath = `artifacts/${appId}/public/data/shared_images`;
             
             const fetchImage = async (imageId) => {
-                setViewerState({ isLoading: true, error: null });
+                setViewerState({ isLoading: true, error: null, imageData: null });
 
                 if (!db || !imageId) {
                     setViewerState({ error: 'Database or Image ID is missing.', isLoading: false });
@@ -753,6 +784,12 @@
                         <i data-lucide="Loader2" class="w-12 h-12 text-red-400 animate-spin"></i>
                         <p class="mt-4 text-xl font-bold text-red-300">Summoning image from the ether...</p>
                         <p class="text-sm text-gray-400 mt-2">ID: ${state.imageId}</p>
+                        <button 
+                            id="viewer-close-btn"
+                            class="mt-8 px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl text-white font-semibold transition shadow-md shadow-gray-900/50"
+                        >
+                            Return to Profile
+                        </button>
                     </div>
                 `;
             } else if (viewerState.error) {
@@ -774,6 +811,7 @@
                     <div class="fixed inset-0 bg-[#070707] flex flex-col items-center justify-center p-4 z-[999]">
                         <button 
                             id="viewer-close-btn"
+                            data-interactive="true"
                             class="absolute top-4 right-4 p-3 bg-red-600 hover:bg-red-700 rounded-full text-white transition shadow-xl z-50 flex items-center space-x-2"
                         >
                             <i data-lucide="X" class="w-6 h-6"></i>
@@ -831,6 +869,7 @@
                             <p class="text-lg text-gray-400 mt-4 text-center">Protocol 404: Never Gonna Give You Up</p>
                             <button 
                                 id="modal-close-btn"
+                                data-interactive="true"
                                 class="mt-6 w-full py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition"
                             >
                                 CLOSE WINDOW
