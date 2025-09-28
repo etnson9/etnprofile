@@ -3,847 +3,632 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ETNS PROFILE - Threads of Destiny</title>
-    
-    <!-- ---------------------------------------------------------------- -->
-    <!-- UPDATED: OPEN GRAPH (OG) & TWITTER CARD META TAGS FOR LINK EMBED -->
-    <meta property="og:title" content="Etns Diddy Place (Mango Asl)" />
-    <meta property="og:description" content="What's up, My nigga. This is my official profile. Check out the products I've made, my crypto addresses, and my PayPal link for tributes." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://etn.lol/" />
-    <meta property="og:image" content="https://placehold.co/1200x630/8B0000/F5F5F5?text=ETNS+%7C+GOD+HAND+DEVELOPMENT+-+PRODUCTS+%26+TRIBUTE" />
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@ETNS_Dev_Handle">
-    <!-- ---------------------------------------------------------------- -->
-
-    <!-- Load Tailwind CSS -->
+    <title>ETNS Profile Nexus</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Google Fonts: Cinzel (for titles/headings) and Inter (for body) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- Load Lucide Icons for aesthetic elements -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Load Tone.js for synthesized, themed sound effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Inter and Cinzel Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     
+    <!-- Custom Styles for Theme -->
     <style>
-        /* Custom CSS Variables */
-        :root {
-            --primary-accent: #8B0000; /* Deep Crimson Red */
-            --bg-dark: #070707;
-            --card-bg: #151515;
-            --accent-bg: #222222;
-            --font-title: 'Cinzel', serif;
-            --font-body: 'Inter', sans-serif;
-            --motion-blur-intensity: 1px;
-        }
-
-        /* Apply custom fonts and base colors */
+        /* General Setup */
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        
         body {
-            font-family: var(--font-body);
-            background-color: var(--bg-dark);
-            color: #E5E5E5;
-            /* 1. Crosshair Cursor (Default state) */
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-crosshair"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="16" y2="12"/><line x1="8" y1="12" x2="2" y2="12"/><line x1="12" y1="22" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="2"/></svg>') 16 16, crosshair;
+            background-color: #030712; /* Deep Blue/Black */
+            /* Ensure the body is full height for min-h-screen to work */
+            min-height: 100vh;
         }
 
-        /* Hover Cursor: Laser Pointer (red dot) - applied to ALL elements on hover */
-        *:hover { 
-            /* Red dot SVG */
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="red"/></svg>') 8 8, pointer !important; 
-        }
-
-        /* 2. Hitmarker Cursor on Click (Active State) */
-        body:active {
-            /* Using a simplified target pointer for reliability */
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>') 16 16, pointer;
-        }
-
-        /* Title styling with Cinzel font */
-        .title-font {
-            font-family: var(--font-title);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        /* ---------------------------------- */
-        /* Custom Keyframes */
-        /* ---------------------------------- */
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
-
-        /* Keyframes for the Brand of Sacrifice Pulse */
-        @keyframes brand-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(139, 0, 0, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(139, 0, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(139, 0, 0, 0); }
-        }
-
-        /* Keyframes for CTA Button Click Glow */
-        @keyframes cta-click-glow {
-            0% { box-shadow: 0 0 10px var(--primary-accent), 0 0 20px var(--primary-accent); }
-            50% { box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
-            100% { box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4); }
-        }
+        /* Base Text Size for Normal Content */
+        p, li { font-size: 1.125rem; /* text-lg */ line-height: 1.75; } 
         
-        /* ---------------------------------- */
-        /* Custom Component Styling */
-        /* ---------------------------------- */
-
-        /* Brand Profile Image Wrapper: Use bg-black for solid background */
-        .brand-profile {
-            position: relative;
-            /* Apply the pulse animation */
-            animation: brand-pulse 2s infinite cubic-bezier(0.66, 0.1, 0.28, 0.9);
-            /* Important for GIF clipping */
-            overflow: hidden; 
+        /* Sidebar Navigation Effects */
+        .sidebar-nav-item {
+            transition: all 0.2s ease-in-out;
+            filter: drop-shadow(0 0 2px #8B0000);
         }
-
-        /* Profile GIF Container Fix (Scoped to circular brand-profile) */
-        .brand-profile .tenor-gif-embed {
-            position: absolute; 
-            top: 50%;
-            left: 50%;
-            /* Tighter translation and zoom for circular crop */
-            transform: translate(-55%, -55%); 
-            height: 110%; 
-            width: 110%; 
-        }
-
-        /* Banner GIF Container Fix (Scoped to rectangular banner) */
-        .banner-gif-wrapper .tenor-gif-embed {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            /* Centered translation and slight zoom for rectangular crop */
-            transform: translate(-50%, -50%); 
-            height: 105%; 
-            width: 105%;
-        }
-
-        /* Custom Button Styling */
-        .berserk-btn {
-            background-color: var(--primary-accent);
-            transition: all 0.3s ease-in-out, filter 0.2s;
-            box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
-            filter: none; 
-        }
-
-        .berserk-btn:hover {
-            background-color: #A52A2A;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(165, 42, 42, 0.8), 0 0 15px rgba(165, 42, 42, 0.6) inset;
-            /* Subtle 'Motion Blur' effect on hover */
-            filter: blur(var(--motion-blur-intensity)) contrast(1.2) brightness(1.1); 
-        }
-        
-        /* Navigation and General Link Hover */
-        .nav-link {
-            transition: background-color 0.2s, backdrop-filter 0.2s, color 0.2s, transform 0.2s;
-        }
-        .nav-link:hover {
-            background-color: #A52A2A1A; 
-            backdrop-filter: blur(2px);
-            color: white;
-            transform: translateX(5px);
-        }
-
-        /* Glaze Effect for Feature Boxes */
-        .glaze-box {
-            background: linear-gradient(135deg, var(--accent-bg) 0%, var(--card-bg) 100%);
-            border: 2px solid var(--primary-accent);
-            box-shadow: 0 0 10px rgba(139, 0, 0, 0.3);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        .sidebar-nav-item:hover {
+            transform: scale(1.03);
+            filter: drop-shadow(0 0 8px #FF0000) blur(0.5px);
         }
         .glaze-box:hover {
-             transform: translateY(-5px) scale(1.02);
-             box-shadow: 0 15px 30px rgba(139, 0, 0, 0.8);
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.7);
+            transform: translateY(-2px);
+            transition: all 0.3s ease-in-out;
+            filter: blur(0.1px);
         }
         
-        /* Image Hoster Specific Styles */
-        .image-container img {
-            max-height: 200px;
-            object-fit: cover;
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--primary-accent);
+        /* Pulse Animation */
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 10px #FF0000, 0 0 5px #8B0000 inset; }
+            50% { box-shadow: 0 0 20px #FF0000, 0 0 10px #8B0000 inset; }
+        }
+        .pulse-red { animation: pulse-red 2s infinite alternate; }
+
+        /* Discord Button Pulse */
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 10px rgba(88, 101, 242, 0.6), 0 0 5px rgba(88, 101, 242, 0.3) inset; }
+            50% { box-shadow: 0 0 25px rgba(88, 101, 242, 1), 0 0 10px rgba(88, 101, 242, 0.5) inset; }
+        }
+        .pulse-blue { animation: pulse-blue 2s infinite alternate; }
+        
+        /* Fade-in Transition */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
         }
 
+        /* GIF Sizing Fixes for Tenor (Crucial for styling) */
+        .profile-gif-wrapper .tenor-gif-embed {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .profile-gif-wrapper iframe {
+            width: 120% !important; 
+            height: 120% !important;
+            position: absolute;
+            top: -10% !important; 
+            left: -10% !important;
+            object-fit: cover;
+        }
+        .banner-gif-wrapper .tenor-gif-embed {
+            width: 100%;
+            height: 100%;
+        }
+        .banner-gif-wrapper iframe {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
+        /* Modal specific styles */
+        .modal {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+        .modal.open {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen bg-gray-950 font-inter antialiased">
 
-    <!-- Main Container -->
-    <div class="min-h-screen flex flex-col lg:flex-row">
-
-        <!-- 1. Sidebar/Header (Left-aligned on Desktop, Top-aligned on Mobile) -->
-        <header class="lg:w-72 p-6 lg:h-screen lg:sticky lg:top-0 bg-black shadow-xl shadow-black/90 border-r border-red-900 z-10">
-            <div class="flex flex-col space-y-8">
-                <!-- Profile Title -->
-                <h1 class="title-font text-3xl font-black text-white text-shadow-red">ETNS PROFILE</h1>
-                <p class="text-xs text-red-700 text-center uppercase tracking-widest font-bold">
-                    Designs of Destiny
-                </p>
-
-                <!-- Profile GIF: New Tenor Embed with circular clipping (bg-black applied) -->
-                <div class="w-28 h-28 mx-auto border-4 border-red-700 rounded-full brand-profile bg-black relative">
+    <!-- Main Layout Container -->
+    <div id="app-container" class="min-h-screen flex flex-col lg:flex-row bg-gray-950 text-white">
+        
+        <!-- SIDEBAR (Profile and Navigation) -->
+        <aside id="sidebar" class="w-full lg:w-80 bg-black p-6 shadow-2xl shadow-red-900/40 border-r-4 border-red-900 sticky top-0 z-10">
+            <div class="flex flex-col items-center">
+                
+                <!-- PROFILE GIF (Branded Logo) -->
+                <div class="w-32 h-32 bg-black rounded-full border-4 border-red-700 pulse-red overflow-hidden relative mb-4 profile-gif-wrapper">
                     <div class="tenor-gif-embed" data-postid="5769121116284891944" data-share-method="host" data-aspect-ratio="0.9" data-width="100%">
-                        <a href="https://tenor.com/view/berserk-gif-5769121116284891944" class="text-xs text-red-500">Berserk GIF</a>
-                    </div>
+                        <a href="https://tenor.com/view/berserk-gif-5769121116284891944">Berserk GIF</a>
+                    </div> 
                 </div>
 
-                <!-- Navigation/Quick Links -->
-                <nav class="space-y-2">
-                    <a href="#portfolio" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="user" class="inline-block w-5 h-5 mr-2"></i> Bio
-                    </a>
-                    <a href="#features" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="shield-check" class="inline-block w-5 h-5 mr-2"></i> Core Tenets
-                    </a>
-                    <a href="#products" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="package" class="inline-block w-5 h-5 mr-2"></i> Products
-                    </a>
-                    <!-- NEW IMAGE HOSTER LINK -->
-                    <a href="#image-hoster" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="image" class="inline-block w-5 h-5 mr-2"></i> Image Hoster
-                    </a>
-                    <a href="#music" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="music" class="inline-block w-5 h-5 mr-2"></i> Soundtrack
-                    </a>
-                    <a href="#payments" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="wallet" class="inline-block w-5 h-5 mr-2"></i> Tribute
-                    </a>
-                    <a href="#community" class="nav-link interactive-element block p-3 title-font text-gray-400 hover:text-white rounded-lg">
-                        <i data-lucide="users" class="inline-block w-5 h-5 mr-2"></i> Community
-                    </a>
-                </nav>
+                <h1 class="text-3xl font-cinzel font-black text-red-500 tracking-wider">ETNS PROFILE</h1>
+                <p class="text-lg text-gray-400 mt-1">THE STRUGGLER</p>
 
-                <hr class="border-gray-800">
-
-                <!-- Customizable Primary Button Example (Now triggers Rickroll) -->
-                <button id="cta-button" class="interactive-element w-full p-3 rounded-xl font-bold berserk-btn text-white title-font">
-                    Initiate Connection
+                <button 
+                    id="connectButton"
+                    class="mt-6 w-full py-3 bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/60 transition duration-300 transform hover:scale-[1.02] hover:bg-red-600"
+                >
+                    INITIATE CONNECTION
                 </button>
             </div>
-        </header>
 
-
-        <!-- 2. Main Content Area (Centralized/Minimal Focus) -->
-        <main class="flex-1 p-6 lg:p-10 space-y-12">
-
-            <!-- Welcome Banner (Themed Header with GIF Embed) -->
-            <section class="bg-black p-8 rounded-xl shadow-2xl shadow-black/80 border border-red-900 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                
-                <!-- GIF EMBED AREA (Tenor) -->
-                <div class="flex-shrink-0 w-full md:w-1/3 max-w-xs h-36 rounded-lg overflow-hidden border-2 border-red-700 bg-gray-800 relative shadow-xl banner-gif-wrapper">
-                    <!-- Main Tenor GIF Embed -->
-                    <div class="tenor-gif-embed" data-postid="12587464080199064649" data-share-method="host" data-aspect-ratio="1.31053" data-width="100%" style="height: 100%;">
-                        <a href="https://tenor.com/view/berserk-guts-realayax-ayax-ayaz-gif-12587464080199064649" class="text-xs text-red-500">Berserk Guts GIF</a>
-                    </div>
-                </div>
-
-                <div>
-                    <h2 class="title-font text-4xl lg:text-5xl font-extrabold text-red-600 mb-2">
-                        Woven By The God Hand.
-                    </h2>
-                    <p class="text-gray-400 text-lg">
-                        This is my development hub, a place to showcase digital projects and connect with the community.
-                    </p>
-                </div>
-            </section>
+            <!-- Navigation Links -->
+            <nav id="nav-links" class="mt-10 space-y-4">
+                <!-- Links will be populated by JS -->
+            </nav>
             
-            <!-- 3. Bio Section (The Struggler's Manifesto) - Casual and Expanded -->
-            <section id="portfolio" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">THE STRUGGLER'S MANIFESTO</h3>
-                <div class="glaze-box p-8 rounded-xl shadow-2xl transition duration-300 border-red-600/50">
-                    <p class="text-3xl title-font text-red-400 mb-4 tracking-wider">
-                        // HEY THERE! I'M ETN.
-                    </p>
-                    <p class="text-gray-300 text-lg leading-relaxed mb-6 border-l-4 border-red-700 pl-4">
-                        I am an architect of digital domains, a dedicated **Website Developer** and **Software Developer** who thrives on forging resilient systems from the ground up. My focus is on creating **robust, high-performance engines** and dynamic user interfaces that feel intuitive and powerful. Whether I'm optimizing a backend's efficiency or meticulously perfecting a frontend component, my passion lies in bringing complex digital ideas to vibrant, functional life.
-                    </p>
-                    
-                    <h4 class="title-font text-xl text-red-500 mb-3 mt-6">// MY TOOLKIT (What I Speak)</h4>
-                    <ul class="grid grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-6 text-gray-400 text-sm">
-                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-red-600"></i><span class="font-bold text-white">C++</span> (The Foundation)</li>
-                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-yellow-500"></i><span class="font-bold text-white">Python</span> (Logic & Automation)</li>
-                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-orange-400"></i><span class="font-bold text-white">HTML/CSS</span> (Design & Structure)</li>
-                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-blue-400"></i><span class="font-bold text-white">JavaScript</span> (Interactive Development)</li>
-                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-sky-400"></i><span class="font-bold text-white">React/Angular</span> (Frameworks)</li>
-                        <li class="flex items-center space-x-2"><i data-lucide="terminal-square" class="w-4 h-4 text-gray-500"></i><span class="font-bold text-white">...And much more.</span></li>
-                    </ul>
+            <div class="mt-8 pt-4 border-t border-red-900">
+                <p class="text-xs text-gray-600">Status: <span class="text-green-500 font-mono break-all">ONLINE / PURE HTML</span></p>
+            </div>
+        </aside>
 
-                    <p class="text-gray-500 text-sm mt-8 pt-4 border-t border-gray-800 italic">
-                        Thanks for dropping by and checking out my corner of the web!
-                    </p>
-                </div>
-            </section>
-            
-            <!-- 5. Glazed Feature Boxes (Core Tenets) -->
-            <section id="features" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">CORE TENETS</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    <!-- FAST -->
-                    <div class="glaze-box p-6 rounded-xl text-center">
-                        <div>
-                            <i data-lucide="zap" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
-                            <h4 class="title-font text-xl font-bold text-white mb-2">FAST</h4>
-                            <p class="text-gray-400 text-sm">Execution is instantaneous. Speed and efficiency are non-negotiable standards.</p>
-                        </div>
-                    </div>
-
-                    <!-- DISCRETE -->
-                    <div class="glaze-box p-6 rounded-xl text-center">
-                        <div>
-                            <i data-lucide="eye-off" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
-                            <h4 class="title-font text-xl font-bold text-white mb-2">DISCRETE</h4>
-                            <p class="text-gray-400 text-sm">Clean operations and private transactions are always prioritized.</p>
-                        </div>
-                    </div>
-
-                    <!-- UNTRACKABLE -->
-                    <div class="glaze-box p-6 rounded-xl text-center">
-                        <div>
-                            <i data-lucide="footprints" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
-                            <h4 class="title-font text-xl font-bold text-white mb-2">UNTRACKABLE</h4>
-                            <p class="text-gray-400 text-sm">Architecting secure and resilient systems that are hard to follow.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- UNBANNABLE (NEW) -->
-                    <div class="glaze-box p-6 rounded-xl text-center">
-                        <div>
-                            <i data-lucide="server-off" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
-                            <h4 class="title-font text-xl font-bold text-white mb-2">UNBANNABLE</h4>
-                            <p class="text-gray-400 text-sm">Designed with stealth and resilience. Persistence is key to achieving goals.</p>
-                        </div>
-                    </div>
-
-                    <!-- AND MORE (NEW) -->
-                    <div class="glaze-box p-6 rounded-xl text-center">
-                        <div>
-                            <i data-lucide="ellipsis" class="w-10 h-10 mx-auto text-red-500 mb-3"></i>
-                            <h4 class="title-font text-xl font-bold text-white mb-2">& MORE...</h4>
-                            <p class="text-gray-400 text-sm">Always innovating, always moving forward. New features drop constantly.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 6. PRODUCTS SECTION -->
-            <section id="products" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">
-                    YOU WANNA BUY PRODUCTS IVE MADE? HERE YOU ARE
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    <!-- Product 1: ETNBOT -->
-                    <div class="glaze-box p-6 rounded-xl flex flex-col justify-between">
-                        <div>
-                            <i data-lucide="bot" class="w-10 h-10 text-sky-400 mb-3"></i>
-                            <h4 class="title-font text-xl font-bold text-white mb-2">ETNBOT NITRO SNIPER</h4>
-                            <p class="text-gray-400 text-sm mb-4">
-                                this is etnbot the worlds best nitro sniper
-                            </p>
-                        </div>
-                        <a href="https://hoster1-p26cx6enm-seirtspids-projects.vercel.app/etnbot_sniper_thread_design.html" target="_blank" class="interactive-element w-full p-2 mt-4 rounded-lg font-bold berserk-btn text-white text-center">
-                            Purchase
-                        </a>
-                    </div>
-
-                    <!-- Product 2: Coming Soon -->
-                    <div class="glaze-box p-6 rounded-xl text-center flex flex-col items-center justify-center">
-                        <i data-lucide="loader" class="w-10 h-10 text-gray-500 mb-3 animate-spin"></i>
-                        <h4 class="title-font text-xl font-bold text-gray-500 mb-2">Product 2</h4>
-                        <p class="text-gray-500 text-sm">COMING SOON</p>
-                    </div>
-
-                    <!-- Product 3: Coming Soon -->
-                    <div class="glaze-box p-6 rounded-xl text-center flex flex-col items-center justify-center">
-                        <i data-lucide="loader" class="w-10 h-10 text-gray-500 mb-3 animate-spin"></i>
-                        <h4 class="title-font text-xl font-bold text-gray-500 mb-2">Product 3</h4>
-                        <p class="text-gray-500 text-sm">COMING SOON</p>
-                    </div>
-
-                </div>
-            </section>
-            
-            <!-- 7. IMAGE HOSTER SECTION (NEW) -->
-            <section id="image-hoster" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">
-                    PRIVATE IMAGE HOSTER (USER: <span id="current-user-id" class="text-yellow-500 font-mono text-sm">Loading...</span>)
-                </h3>
-                
-                <div class="glaze-box p-6 rounded-xl space-y-4">
-                    <p class="text-gray-400 text-sm">Upload images to your private storage. Only authenticated users can upload and view this collection.</p>
-
-                    <!-- Upload Form -->
-                    <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 items-center">
-                        <input type="file" id="image-file-input" accept="image/*" class="w-full md:w-auto p-2 border border-gray-700 bg-gray-800 rounded-lg text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-800 file:text-white hover:file:bg-red-700"/>
-                        <button id="upload-button" class="interactive-element w-full md:w-auto p-3 rounded-xl font-bold berserk-btn text-white title-font flex items-center justify-center space-x-2" disabled>
-                            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
-                            <span id="upload-text">Upload Image</span>
-                        </button>
-                    </div>
-                    
-                    <p id="upload-status" class="text-xs text-green-500 h-4"></p>
-                    
-                    <hr class="border-red-900/50">
-
-                    <!-- Image Display Grid -->
-                    <h4 class="title-font text-xl text-red-400 mb-3 pt-2">Your Hosted Images</h4>
-                    <div id="image-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <!-- Images will be inserted here by JavaScript -->
-                        <p class="col-span-full text-gray-600 text-center">Loading images...</p>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- 8. Spotify/Music Section (LIVE EMBED) -->
-            <section id="music" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">Soundtrack</h3>
-
-                <div class="bg-gray-900 p-2 rounded-xl shadow-xl border border-red-900">
-                    <!-- Spotify Embed. Source URL will be set dynamically by JavaScript on load. -->
-                    <iframe 
-                        id="spotify-embed"
-                        style="border-radius:12px" 
-                        src="" 
-                        width="100%" 
-                        height="200" 
-                        frameBorder="0" 
-                        allowfullscreen="" 
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                        loading="lazy">
-                    </iframe>
-                    
-                </div>
-            </section>
-
-            <!-- 9. Payment Methods (Tiers of Sacrifice) -->
-            <section id="payments" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">Crypto Wallets & Paypal</h3>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <!-- Crypto Payments (Copy address on click) -->
-                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="bc1q22hmdy35ck278rdq376ynx0846xwgf289xg8vn">
-                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-yellow-500 mb-2"></i> 
-                        <p class="title-font text-sm font-bold text-white">BTC</p>
-                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
-                    </div>
-                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="LbjXnR5cA5DLoJ1LSgSnVa4CCdFzbngptQ">
-                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-gray-300 mb-2"></i>
-                        <p class="title-font text-sm font-bold text-white">LTC</p>
-                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
-                    </div>
-                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="GptR8TrPw8R1ChmRfJLyDS3ihnRa8V2t3ZMbLWf6aZBZ">
-                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-purple-400 mb-2"></i>
-                        <p class="title-font text-sm font-bold text-white">SOL</p>
-                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
-                    </div>
-                    <div class="interactive-element payment-btn bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 relative" data-type="copy" data-address="0x2390eb79E0436EcE58E6c171F1E0400e08AA1201">
-                        <i data-lucide="scan-text" class="w-8 h-8 mx-auto text-sky-400 mb-2"></i>
-                        <p class="title-font text-sm font-bold text-white">ETH</p>
-                        <span class="copy-feedback text-xs font-bold text-green-500 absolute top-1 right-2 hidden">Copied!</span>
-                    </div>
-                    <!-- PayPal (Direct link navigation) -->
-                    <a href="https://www.paypal.com/ncp/payment/E57JDEF7FM28C" target="_blank" class="interactive-element bg-gray-900 p-5 rounded-xl text-center border border-gray-800 hover:border-red-600 transition duration-300 col-span-2 md:col-span-1 flex flex-col items-center justify-center">
-                        <i data-lucide="landmark" class="w-8 h-8 mx-auto text-blue-500 mb-2"></i>
-                        <p class="title-font text-sm font-bold text-white">PayPal</p>
-                    </a>
-                </div>
-
-            </section>
-            
-            <!-- 10. Community Section -->
-            <section id="community" class="space-y-6">
-                <h3 class="title-font text-2xl text-red-500 border-b-2 border-red-900 pb-2">Join the discord!</h3>
-                <div class="bg-gray-900 p-8 rounded-xl shadow-xl border border-red-900 flex flex-col items-center text-center">
-                    <a id="discord-button" href="https://www.discord.gg/1ncel" target="_blank" class="interactive-element p-4 rounded-xl font-bold bg-[#5865F2] text-white title-font hover:bg-[#4752C4] transition duration-300 flex items-center space-x-2">
-                        <i data-lucide="message-square-text" class="w-6 h-6"></i>
-                        <span>CLICK HERE TO JOIN</span>
-                    </a>
-                </div>
-            </section>
-
+        <!-- MAIN CONTENT AREA -->
+        <main id="main-content" class="lg:col-span-3 p-4 sm:p-8 flex-grow">
+            <!-- Content will be populated by JS -->
         </main>
     </div>
-
-    <!-- RICKROLL MODAL (Hidden by default) -->
-    <div id="rickroll-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-gray-900 rounded-xl shadow-2xl border-4 border-red-700 w-full max-w-2xl overflow-hidden">
-            
-            <div class="p-6 border-b border-red-900 flex justify-between items-center">
-                <h3 class="title-font text-xl text-red-500">Connection Initiated!</h3>
-                <button id="close-rickroll" class="text-gray-400 hover:text-white transition duration-200 p-2 rounded-full hover:bg-red-800/30">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <!-- Video Container (16:9 Aspect Ratio) -->
-            <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+    
+    <!-- RICKROLL MODAL -->
+    <div id="rickrollModal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50">
+        <div id="modalContent" class="modal-content relative bg-gray-900 rounded-xl border-4 border-red-700 shadow-2xl shadow-red-900/70 p-8 w-full max-w-2xl">
+            <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-4 border-b border-red-800 pb-2">CONNECTION ESTABLISHED</h2>
+            <div class="relative w-full aspect-video">
                 <iframe 
-                    id="rickroll-video-iframe"
-                    class="absolute top-0 left-0 w-full h-full"
-                    src="" 
-                    frameborder="0" 
+                    width="560" 
+                    height="315" 
+                    src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&mute=0&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&widgetid=1" 
+                    title="YouTube video player" 
+                    frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
+                    allowFullScreen 
+                    class="w-full h-full rounded-lg"
+                ></iframe>
             </div>
-
-             <div class="p-6 text-center">
-                <p class="text-gray-400 text-lg">
-                    You should know the rules!
-                </p>
-            </div>
+            <p class="text-lg text-gray-400 mt-4 text-center">Protocol 404: Never Gonna Give You Up</p>
+            <button 
+                onclick="closeModal()"
+                class="mt-6 w-full py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition"
+            >
+                CLOSE WINDOW
+            </button>
         </div>
     </div>
 
-    <!-- JavaScript for Interactivity and Firebase -->
-    <script type="module">
-        // Initialize Lucide Icons
-        lucide.createIcons();
 
-        // ----------------------------------------------------
-        // FIREBASE SETUP AND AUTHENTICATION
-        // ----------------------------------------------------
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, query, onSnapshot, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-        
-        let app;
-        let db;
-        let auth;
-        let storage;
-        let userId = null;
-        let isAuthReady = false;
-        
-        // Use global variables for Firebase configuration
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        if (Object.keys(firebaseConfig).length > 0) {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            storage = getStorage(app);
-            
-            // 1. Handle Authentication
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    console.log("Firebase user authenticated:", userId);
-                    document.getElementById('current-user-id').textContent = userId;
-                    isAuthReady = true;
-                    // Start listening for images and enable upload button
-                    listenForImages();
-                    document.getElementById('upload-button').disabled = false;
-                    document.getElementById('upload-text').textContent = "Upload Image";
+    <!-- Load Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Main Application JavaScript -->
+    <script>
+        // --- Global State ---
+        let activeTab = 'profile';
 
-                } else {
-                    console.log("No user signed in. Attempting sign-in...");
-                    try {
-                        if (initialAuthToken) {
-                             await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                             await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Auth sign-in failed:", error);
-                        document.getElementById('current-user-id').textContent = 'AUTH FAILED';
-                        isAuthReady = true; 
-                    }
+        // --- Data Definitions ---
+        const CORE_TENETS = [
+            { name: 'FAST', icon: 'Zap', emoji: '⚡️', description: 'Zero-latency execution. Every millisecond secured.' },
+            { name: 'DISCRETE', icon: 'EyeOff', emoji: '👻', description: 'Operate in the shadows. Complete anonymity guaranteed.' },
+            { name: 'UNTRACKABLE', icon: 'Satellite', emoji: '🛰️', description: 'Beyond the gaze of all surveillance. Ghost in the machine.' },
+            { name: 'UNBANNABLE', icon: 'Shield', emoji: '🛡️', description: 'Systems designed for absolute resilience against detection.' },
+            { name: 'EVOLVING', icon: 'Infinity', emoji: '♾️', description: 'The code is always learning, adapting, and conquering.' },
+        ];
+
+        const PAYMENT_METHODS = [
+            { name: 'BTC', address: 'bc1q22hmdy35ck278rdq376ynx0846xwgf289xg8vn', icon: 'DollarSign', symbol: '₿', type: 'copy' },
+            { name: 'LTC', address: 'LbjXnR5cA5DLoJ1LSgSnVa4CCdFzbngptQ', icon: 'DollarSign', symbol: 'Ł', type: 'copy' },
+            { name: 'SOL', address: 'GptR8TrPw8R1ChmRfJLyDS3ihnRa8V2t3ZMbLWf6aZBZ', icon: 'DollarSign', symbol: '◎', type: 'copy' },
+            { name: 'ETH', address: '0x2390eb79E0436EcE58E6c171F1E0400e08AA1201', icon: 'DollarSign', symbol: 'Ξ', type: 'copy' },
+            { name: 'PayPal', address: 'https://www.paypal.com/ncp/payment/E57JDEF7FM28C', icon: 'Globe', symbol: 'P', type: 'link' },
+        ];
+
+        const NAV_ITEMS = [
+            { label: "PROFILE NEXUS", tabName: "profile", icon: 'Zap' },
+            { label: "PRODUCTS", tabName: "profile", anchorId: "products", icon: 'Code' },
+            { label: "SOUNDTRACK", tabName: "profile", anchorId: "soundtrack-section", icon: 'Music' },
+            { label: "CRYPTO WALLETS & PAYPAL", tabName: "wallets", icon: 'DollarSign' },
+            { label: "JOIN THE DISCORD!", tabName: "discord", icon: 'Users' }
+        ];
+
+        // --- Utility Functions ---
+
+        /**
+         * Creates a simple noise burst using Web Audio API to mimic a sword slash sound.
+         */
+        function playSwordSfx() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioContext();
+
+                const bufferSize = audioCtx.sampleRate * 0.5;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+
+                for (let i = 0; i < bufferSize; i++) {
+                    const decay = 1 - (i / bufferSize);
+                    data[i] = (Math.random() * 2 - 1) * decay * (i > bufferSize * 0.1 ? 1 : i / (bufferSize * 0.1));
                 }
-            });
-        } else {
-            console.error("Firebase config is missing.");
-            document.getElementById('current-user-id').textContent = 'Config Error';
-        }
-        
-        // ----------------------------------------------------
-        // IMAGE HOSTER LOGIC (Storage and Firestore)
-        // ----------------------------------------------------
 
-        const imageFileInput = document.getElementById('image-file-input');
-        const uploadButton = document.getElementById('upload-button');
-        const uploadStatus = document.getElementById('upload-status');
-        const imageGrid = document.getElementById('image-grid');
+                const source = audioCtx.createBufferSource();
+                source.buffer = buffer;
 
-        if(uploadButton) uploadButton.addEventListener('click', handleImageUpload);
-
-        async function handleImageUpload() {
-            if (!isAuthReady || !userId || !storage || !db) {
-                uploadStatus.textContent = 'Error: Authentication not ready or Firebase not initialized.';
-                return;
-            }
-
-            const file = imageFileInput.files[0];
-            if (!file) {
-                uploadStatus.textContent = 'Please select a file first.';
-                return;
-            }
-
-            // Show loading state
-            uploadButton.disabled = true;
-            document.getElementById('upload-text').textContent = 'Uploading...';
-            uploadStatus.textContent = 'Starting upload to Storage...';
-
-            try {
-                // 1. Upload to Firebase Storage
-                const storagePath = `user_uploads/${userId}/${Date.now()}_${file.name}`;
-                const fileRef = storageRef(storage, storagePath);
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = "highpass";
+                filter.frequency.setValueAtTime(4000, audioCtx.currentTime); 
                 
-                const snapshot = await uploadBytes(fileRef, file);
-                uploadStatus.textContent = 'File uploaded. Getting URL...';
+                source.connect(filter);
+                filter.connect(audioCtx.destination);
                 
-                const downloadURL = await getDownloadURL(snapshot.ref);
-                uploadStatus.textContent = 'URL acquired. Saving metadata to Firestore...';
-
-                // 2. Save metadata to Firestore (Private collection path)
-                const imageCollectionPath = `/artifacts/${appId}/users/${userId}/hosted_images`;
-                const imageDocRef = doc(collection(db, imageCollectionPath));
-                await setDoc(imageDocRef, {
-                    url: downloadURL,
-                    storagePath: storagePath,
-                    filename: file.name,
-                    uploadedAt: serverTimestamp(),
-                });
-
-                uploadStatus.textContent = 'Success! Image hosted and saved.';
-                imageFileInput.value = ''; // Clear file input
-
+                source.start();
             } catch (error) {
-                console.error("Upload failed:", error);
-                uploadStatus.textContent = `Upload Failed: ${error.message.substring(0, 50)}...`;
-            } finally {
-                // Reset button state
-                uploadButton.disabled = false;
-                document.getElementById('upload-text').textContent = 'Upload Image';
-                setTimeout(() => { uploadStatus.textContent = ''; }, 3000);
+                console.error("Audio playback error:", error);
             }
         }
 
-        function listenForImages() {
-            if (!db || !userId) return;
-
-            const q = query(
-                collection(db, `/artifacts/${appId}/users/${userId}/hosted_images`),
-                orderBy('uploadedAt', 'desc'),
-                limit(16) // Limit to 16 latest images for performance
-            );
-            
-            // Clear initial loading message
-            imageGrid.innerHTML = '';
-            
-            // Set up real-time listener
-            onSnapshot(q, (querySnapshot) => {
-                const images = [];
-                querySnapshot.forEach((doc) => {
-                    images.push({ id: doc.id, ...doc.data() });
-                });
-                renderImages(images);
-            }, (error) => {
-                console.error("Error listening to images:", error);
-                imageGrid.innerHTML = '<p class="col-span-full text-red-600 text-center">Error fetching images.</p>';
-            });
-        }
-
-        function renderImages(images) {
-            imageGrid.innerHTML = '';
-            if (images.length === 0) {
-                imageGrid.innerHTML = '<p class="col-span-full text-gray-600 text-center">No images uploaded yet.</p>';
-                return;
-            }
-
-            images.forEach(image => {
-                const imgCard = document.createElement('div');
-                imgCard.className = 'image-container group relative rounded-lg overflow-hidden shadow-lg hover:shadow-red-500/50 transition duration-300 transform hover:scale-105 cursor-pointer';
-                imgCard.innerHTML = `
-                    <img src="${image.url}" alt="${image.filename}" loading="lazy" class="w-full h-48 object-cover transition duration-500 group-hover:opacity-80">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                        <button data-url="${image.url}" class="copy-url-btn text-white title-font text-xs bg-red-700 hover:bg-red-600 p-2 rounded-lg flex items-center space-x-1">
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                            <span>Copy URL</span>
-                        </button>
-                    </div>
-                `;
-                imageGrid.appendChild(imgCard);
-            });
-            // Re-create icons for new elements
-            lucide.createIcons();
-            
-            // Add click listener to copy buttons
-            document.querySelectorAll('.copy-url-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const url = button.getAttribute('data-url');
-                    copyToClipboard(url);
-                    button.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Copied!</span>';
-                    lucide.createIcons();
-                    setTimeout(() => {
-                        button.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i><span>Copy URL</span>';
-                        lucide.createIcons();
-                    }, 1000);
-                });
-            });
-        }
-
-
-        // ----------------------------------------------------
-        // GENERAL INTERACTIVITY LOGIC (SFX, Music, Payments, Rickroll)
-        // ----------------------------------------------------
-
-        // SFX LOGIC
-        let sfxInitialized = false;
-        let sfxNoise;
-        let sfxFilter;
-        let sfxReverb;
-        
-        function initializeSfx() {
-            if (sfxInitialized) return;
-            try {
-                Tone.start(); 
-                sfxNoise = new Tone.Noise("white").toDestination();
-                sfxNoise.volume.value = -10;
-                sfxFilter = new Tone.Filter(0, "lowpass").toDestination();
-                sfxNoise.connect(sfxFilter);
-                sfxReverb = new Tone.Reverb(0.5).toDestination();
-                sfxFilter.connect(sfxReverb);
-                sfxInitialized = true;
-            } catch (error) {
-                console.error("Tone.js initialization failed:", error);
-            }
-        }
-
-        function playThematicSfx() {
-            if (!sfxInitialized) initializeSfx();
-            if (sfxNoise) {
-                const now = Tone.now();
-                const duration = 0.15;
-                sfxNoise.start(now).stop(now + duration);
-                sfxFilter.frequency.setValueAtTime(100, now);
-                sfxFilter.frequency.linearRampToValueAtTime(8000, now + 0.05);
-                sfxFilter.frequency.linearRampToValueAtTime(100, now + duration);
-            }
-        }
-        
-        document.querySelectorAll('.interactive-element, .berserk-btn').forEach(element => {
-            element.addEventListener('click', () => {
-                if (!sfxInitialized) initializeSfx();
-                playThematicSfx();
-            });
-        });
-
-        // SPOTIFY LOGIC
-        const FIXED_PLAYLIST_ID = '7ASHXx9Hah5saHxR92tUS5';
-
-        function setFixedSpotifyPlaylist(playlistId) {
-            const embed = document.getElementById('spotify-embed');
-            if (embed) {
-                const baseUrl = 'https://open.spotify.com/embed/playlist/';
-                const fullUrl = `${baseUrl}${playlistId}?utm_source=generator&theme=0&view=list`;
-                embed.setAttribute('src', fullUrl);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-             setFixedSpotifyPlaylist(FIXED_PLAYLIST_ID);
-        });
-
-
-        // PAYMENT BUTTON LOGIC (Copy to Clipboard)
+        /**
+         * Copies text to the clipboard (using execCommand for compatibility in iFrames).
+         * @param {string} text - The text to copy.
+         */
         function copyToClipboard(text) {
             const tempInput = document.createElement('textarea');
             tempInput.value = text;
-            tempInput.style.position = 'absolute';
-            tempInput.style.left = '-9999px';
             document.body.appendChild(tempInput);
             tempInput.select();
-            try {
-                const successful = document.execCommand('copy');
-                document.body.removeChild(tempInput);
-                return successful;
-            } catch (err) {
-                document.body.removeChild(tempInput);
-                console.error('Failed to copy to clipboard', err);
-                return false;
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+        }
+
+        /**
+         * Handles the click action for payment methods (copy address or open link).
+         * @param {string} name - Method name.
+         * @param {string} address - Address or link.
+         * @param {string} type - 'copy' or 'link'.
+         */
+        function handlePaymentAction(name, address, type) {
+            playSwordSfx();
+            if (type === 'copy') {
+                copyToClipboard(address);
+                console.log(`${name} address copied!`);
+            } else if (type === 'link') {
+                window.open(address, '_blank');
+            }
+        }
+
+        /**
+         * Renders a product card element.
+         */
+        function ProductCard(title, description, buttonText, link, isPlaceholder) {
+            return `
+                <div class="p-5 rounded-xl border-2 transition duration-300 ${
+                    isPlaceholder 
+                        ? 'bg-gray-800 border-gray-700 text-gray-500 opacity-60' 
+                        : 'bg-gray-900 border-red-700 text-gray-300 shadow-xl shadow-red-900/30 hover:border-red-500'
+                } transform hover:scale-[1.01]'">
+                    <h3 class="text-xl font-cinzel font-bold mb-2 tracking-wide text-red-400">${title}</h3>
+                    <p class="text-base mb-4">${description}</p>
+                    ${!isPlaceholder ? `
+                        <a 
+                            href="${link}" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            onclick="playSwordSfx()"
+                            class="inline-block px-5 py-2 bg-red-600 rounded-lg text-white font-bold hover:bg-red-700 transition duration-300 shadow-lg hover:shadow-red-500/50"
+                        >
+                            ${buttonText}
+                        </a>` : ''
+                    }
+                </div>
+            `;
+        }
+        
+        /**
+         * Renders a payment card element.
+         */
+        function PaymentCard(method) {
+            const isLink = method.type === 'link';
+            const displayAddress = isLink ? method.address.split('/').slice(0, 3).join('/') : method.address;
+            
+            return `
+                <div class="bg-gray-900/70 p-5 rounded-xl border-2 border-red-800 shadow-xl shadow-black/60 flex flex-col transition duration-300 hover:bg-gray-800 hover:border-red-600">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="text-4xl font-serif font-black text-red-400">${method.symbol}</div>
+                        <h3 class="text-2xl font-cinzel font-bold text-white">${method.name}</h3>
+                    </div>
+                    <p class="text-sm text-gray-400 truncate mb-4 font-mono">${displayAddress}</p>
+                    <button
+                        onclick="handlePaymentAction('${method.name}', '${method.address}', '${method.type}')"
+                        class="mt-auto w-full py-2.5 rounded-lg text-base font-bold transition duration-200 shadow-md ${
+                            isLink 
+                                ? 'bg-red-600 text-white hover:bg-red-700 hover:shadow-red-500/50'
+                                : 'bg-red-800 text-red-100 hover:bg-red-700 hover:shadow-red-500/50'
+                        }"
+                    >
+                        ${isLink ? 'VISIT LINK' : 'COPY ADDRESS'}
+                    </button>
+                </div>
+            `;
+        }
+
+        // --- Content Rendering Functions ---
+
+        function renderProfileContent() {
+            const tenetsHtml = CORE_TENETS.map(tenet => `
+                <div class="glaze-box p-4 text-center rounded-xl border border-red-700/70 bg-gray-900/60 hover:bg-gray-800 transition duration-300 shadow-lg shadow-black/50">
+                    <p class="text-4xl mb-2">${tenet.emoji}</p>
+                    <p class="font-extrabold text-xl text-red-400 tracking-wider mb-2">${tenet.name}</p>
+                    <p class="text-xs text-gray-400 italic leading-snug break-words">${tenet.description}</p>
+                </div>
+            `).join('');
+
+            const productsHtml = `
+                ${ProductCard("ETNBOT", "This is ETNBOT, the world's best nitro sniper, forged for speed and secrecy. A true digital weapon.", "View Details", "https://hoster1-p26cx6enm-seirtspids-projects.vercel.app/etnbot_sniper_thread_design.html", false)}
+                ${ProductCard("COMING SOON", "The next shadow project is in development, focusing on decentralized identity.", null, null, true)}
+                ${ProductCard("COMING SOON", "A new digital weapon awaits creation, codenamed 'Phantom'.", null, null, true)}
+            `;
+
+            return `
+                <div class="max-w-4xl mx-auto">
+                    <!-- WELCOME BANNER (GIF) -->
+                    <div class="relative h-40 sm:h-64 bg-black rounded-xl overflow-hidden shadow-2xl shadow-red-900/70 border-4 border-red-700/70 mb-10">
+                        <div class="relative w-full h-full banner-gif-wrapper">
+                            <div class="tenor-gif-embed" data-postid="12587464080199064649" data-share-method="host" data-aspect-ratio="1.31053" data-width="100%">
+                                <a href="https://tenor.com/view/berserk-guts-realayax-ayax-ayaz-gif-12587464080199064649">Berserk Guts GIF</a>
+                            </div> 
+                        </div>
+                    </div>
+
+                    <!-- BIO SECTION -->
+                    <section class="mb-10 p-6 bg-gray-900/70 backdrop-blur-sm rounded-xl border border-red-800 shadow-2xl shadow-black/60">
+                        <h2 class="text-2xl font-cinzel font-bold text-red-400 mb-4 border-b-2 border-red-900 pb-1">THE STRUGGLER'S MANIFESTO</h2>
+                        <p class="text-gray-300 text-lg mb-4 leading-relaxed">
+                            I am an architect of digital domains, a dedicated <strong>Website Developer</strong> and <strong>Software Developer</strong> who thrives on forging resilient systems from the ground up. My focus is on creating <strong>robust, high-performance engines</strong> and dynamic user interfaces that feel intuitive and powerful. Whether I'm optimizing a backend's efficiency or meticulously perfecting a frontend component, my passion lies in bringing complex digital ideas to vibrant, functional life.
+                        </p>
+                        <ul class="text-base text-gray-400 flex flex-wrap gap-x-4">
+                            <li class="font-bold text-red-300">Core Languages:</li>
+                            <li class="border-r border-red-900 pr-4">C++</li>
+                            <li class="border-r border-red-900 pr-4">Python</li>
+                            <li class="border-r border-red-900 pr-4">HTML</li>
+                            <li class="border-r border-red-900 pr-4">JavaScript</li>
+                            <li class="border-r border-red-900 pr-4">React</li>
+                            <li>Vanilla JS</li>
+                        </ul>
+                    </section>
+
+                    <!-- Profile Content -->
+                    <div class="animate-fadeIn space-y-12">
+                        <!-- CORE TENETS -->
+                        <section>
+                            <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-6 border-b-2 border-red-800 pb-2">CORE TENETS</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                ${tenetsHtml}
+                            </div>
+                        </section>
+
+                        <!-- PRODUCTS -->
+                        <section id="products">
+                            <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-6 border-b-2 border-red-800 pb-2">PRODUCTS</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                ${productsHtml}
+                            </div>
+                        </section>
+
+                        <!-- SOUNDTRACK -->
+                        <section id="soundtrack-section"> 
+                            <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-6 border-b-2 border-red-800 pb-2">SOUNDTRACK OF FATE</h2>
+                            <div class="rounded-xl overflow-hidden shadow-2xl shadow-red-900/70 border border-red-700">
+                                <iframe 
+                                    src="https://open.spotify.com/embed/playlist/7ASHXx9Hah5saHxR92tUS5?utm_source=generator&theme=0" 
+                                    width="100%" 
+                                    height="380" 
+                                    frameborder="0" 
+                                    allowfullscreen="" 
+                                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                    loading="lazy"
+                                    title="Spotify Playlist Embed"
+                                    class="border-0"
+                                ></iframe>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWalletsContent() {
+            const cardsHtml = PAYMENT_METHODS.map(method => PaymentCard(method)).join('');
+
+            return `
+                <div class="max-w-4xl mx-auto animate-fadeIn p-4 sm:p-0">
+                    <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-8 border-b-2 border-red-800 pb-2">CRYPTO WALLETS & PAYPAL</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDiscordContent() {
+            // Check if functions exist before calling them
+            const usersIcon = (typeof lucide.Users === 'function') ? lucide.Users({ class: 'w-16 h-16 text-red-500 mb-6 pulse-red' }).outerHTML : '';
+            const globeIcon = (typeof lucide.Globe === 'function') ? lucide.Globe({ class: 'w-6 h-6' }).outerHTML : '';
+            
+            return `
+                <div class="max-w-4xl mx-auto animate-fadeIn flex flex-col items-center justify-center p-8 sm:p-12 bg-gray-900/70 rounded-xl border-4 border-red-700 shadow-2xl shadow-red-900/50 backdrop-blur-sm">
+                    ${usersIcon}
+                    <h2 class="text-4xl font-cinzel font-bold text-red-400 mb-4 text-center tracking-wider">SECURE THE CONNECTION</h2>
+                    <p class="text-xl text-gray-300 mb-8 text-center">
+                        Join the Eternal Network System.
+                    </p>
+                    
+                    <div class="mb-8 w-full max-w-sm p-4 bg-gray-800 rounded-lg border border-red-700 shadow-inner shadow-black/50">
+                        <p class="text-sm font-mono text-gray-500 mb-1">INVITE CODE:</p>
+                        <p class="text-3xl font-mono text-white font-bold tracking-widest text-center">
+                            1ncel
+                        </p>
+                    </div>
+
+                    <a 
+                        href="https://discord.gg/1ncel" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="playSwordSfx()"
+                        class="w-full max-w-sm py-4 bg-[#5865F2] text-white text-xl font-bold rounded-xl flex items-center justify-center space-x-3 transition duration-300 transform hover:scale-[1.03] shadow-xl pulse-blue border border-blue-400"
+                    >
+                        ${globeIcon}
+                        <span>ENTER THE DOMAIN</span>
+                    </a>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the appropriate content block based on the active tab.
+         */
+        function renderMainContent() {
+            const mainContentEl = document.getElementById('main-content');
+            mainContentEl.classList.remove('lg:col-span-3'); // Reset class for different layouts
+
+            let contentHtml = '';
+            switch (activeTab) {
+                case 'profile':
+                    contentHtml = renderProfileContent();
+                    break;
+                case 'wallets':
+                    contentHtml = renderWalletsContent();
+                    break;
+                case 'discord':
+                    contentHtml = renderDiscordContent();
+                    break;
+                default:
+                    contentHtml = `<div class="text-red-500 text-center py-10">404: Nexus Link Broken.</div>`;
+                    break;
+            }
+            mainContentEl.innerHTML = `<div class="w-full">${contentHtml}</div>`;
+
+            // Re-render Lucide icons if any were added via data attributes (optional, but harmless)
+            lucide.createIcons();
+        }
+
+        /**
+         * Renders the navigation links in the sidebar.
+         */
+        function renderNavigation() {
+            const navEl = document.getElementById('nav-links');
+            navEl.innerHTML = ''; // Clear existing links
+
+            NAV_ITEMS.forEach(item => {
+                const isActive = activeTab === item.tabName && !item.anchorId;
+                const isAnchorActive = item.anchorId && activeTab === 'profile'; // Products/Soundtrack anchors are part of profile
+
+                const button = document.createElement('button');
+                button.setAttribute('data-interactive', 'true');
+                button.onclick = () => handleTabChange(item.tabName, item.anchorId);
+                
+                const activeClass = (isActive || isAnchorActive) 
+                    ? 'bg-red-800 text-white shadow-inner shadow-black/50 border border-red-600'
+                    : 'text-gray-400 hover:bg-gray-900/50 hover:text-red-300';
+
+                button.className = `sidebar-nav-item w-full flex items-center p-3 rounded-xl transition duration-200 text-left font-bold tracking-wider ${activeClass}`;
+                
+                // FIX: Check if the lucide function exists and is callable before running it
+                const iconFunction = lucide[item.icon];
+                const iconSvg = (iconFunction && typeof iconFunction === 'function')
+                    ? iconFunction({ class: 'w-5 h-5 mr-3' }).outerHTML
+                    : '';
+
+                button.innerHTML = `${iconSvg}${item.label}`;
+                navEl.appendChild(button);
+            });
+            // The explicit call to lucide.createIcons() here is not needed since we constructed the SVGs manually.
+        }
+
+        /**
+         * Handles the tab change, optional anchor scroll, and SFX.
+         */
+        function handleTabChange(tabName, anchorId = null) {
+            playSwordSfx();
+            
+            // If the target is an anchor link within the current tab (profile)
+            if (anchorId && activeTab === tabName) {
+                const element = document.getElementById(anchorId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                // No need to change activeTab state or re-render
+                return;
+            }
+
+            // Standard tab switch
+            activeTab = tabName;
+            renderNavigation();
+            renderMainContent();
+
+            // If switching to profile via a specific anchor (e.g., clicking PRODUCTS from wallets)
+            if (anchorId) {
+                setTimeout(() => {
+                    const element = document.getElementById(anchorId);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 50); 
             }
         }
         
-        const paymentButtons = document.querySelectorAll('.payment-btn');
-        paymentButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const address = button.getAttribute('data-address');
-                const feedback = button.querySelector('.copy-feedback');
-                
-                if (address) {
-                    const success = copyToClipboard(address);
-                    
-                    if (success) {
-                        if (feedback) {
-                            feedback.textContent = 'Address Copied!';
-                            feedback.classList.remove('hidden');
-                            setTimeout(() => {
-                                feedback.classList.add('hidden');
-                            }, 1500);
-                        }
-                    } else {
-                         if (feedback) {
-                            feedback.textContent = 'Copy Failed!';
-                            feedback.classList.remove('hidden');
-                            setTimeout(() => {
-                                feedback.classList.add('hidden');
-                            }, 1500);
-                        }
-                    }
+        // --- Modal Functions ---
+
+        function openModal() {
+            const modal = document.getElementById('rickrollModal');
+            modal.classList.add('open');
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('rickrollModal');
+            modal.classList.remove('open');
+            // Hide after transition
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300); 
+        }
+        
+        // --- Cursor and Global Event Handlers ---
+        function setupGlobalEffects() {
+            // Set custom cursor
+            document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#E70000\' stroke-width=\'2\' d=\'M16 4v24M4 16h24\'/><circle fill=\'#E70000\' r=\'1\' cx=\'16\' cy=\'16\'/></svg>"), auto';
+            
+            const handleMouseMove = (e) => {
+                const hoveredElement = e.target.closest('a, button, [data-interactive="true"]');
+                if (hoveredElement) {
+                    document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><circle fill=\'#FF0000\' r=\'5\' cx=\'16\' cy=\'16\' opacity=\'0.8\'/></svg>"), pointer';
+                } else {
+                    document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#E70000\' stroke-width=\'2\' d=\'M16 4v24M4 16h24\'/><circle fill=\'#E70000\' r=\'1\' cx=\'16\' cy=\'16\'/></svg>"), auto';
+                }
+            };
+
+            const handleClick = () => {
+                document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#FF0000\' stroke-width=\'3\' d=\'M16 0v32M0 16h32\'/><circle fill=\'none\' stroke=\'#FF0000\' stroke-width=\'3\' r=\'10\' cx=\'16\' cy=\'16\'/></svg>"), pointer';
+                setTimeout(() => {
+                    document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#E70000\' stroke-width=\'2\' d=\'M16 4v24M4 16h24\'/><circle fill=\'#E70000\' r=\'1\' cx=\'16\' cy=\'16\'/></svg>"), auto';
+                }, 100);
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mousedown', handleClick);
+            
+            // Add listener for the main connect button (Rickroll)
+            document.getElementById('connectButton').addEventListener('click', () => {
+                playSwordSfx();
+                openModal();
+            });
+            
+            // Close modal when clicking outside of the content
+            document.getElementById('rickrollModal').addEventListener('click', function(e) {
+                if (e.target.id === 'rickrollModal') {
+                    closeModal();
                 }
             });
-        });
-
-        // CTA Button (RICKROLL) Logic
-        const ctaButton = document.getElementById('cta-button');
-        const rickrollModal = document.getElementById('rickroll-modal');
-        const rickrollIframe = document.getElementById('rickroll-video-iframe');
-        const closeButton = document.getElementById('close-rickroll');
-        
-        const RICKROLL_URL = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&modestbranding=1&rel=0&version=3&enablejsapi=1';
-
-        function openRickrollModal() {
-            rickrollModal.classList.remove('hidden');
-            lucide.createIcons();
-            rickrollIframe.src = RICKROLL_URL;
-        }
-
-        function closeRickrollModal() {
-            rickrollModal.classList.add('hidden');
-            rickrollIframe.src = ''; 
         }
         
-        if (ctaButton) ctaButton.addEventListener('click', (e) => {
-            ctaButton.style.animation = 'cta-click-glow 0.8s ease-out';
-            openRickrollModal(); 
-            setTimeout(() => {
-                ctaButton.style.animation = '';
-            }, 800);
-        });
-        
-        if (closeButton) closeButton.addEventListener('click', closeRickrollModal);
-        if (rickrollModal) rickrollModal.addEventListener('click', (e) => {
-            if (e.target === rickrollModal) {
-                closeRickrollModal();
-            }
-        });
+        // --- Initialization ---
+
+        window.onload = function() {
+            // Load Tenor Embed Script (Necessary for GIF embeds)
+            const loadTenorScript = () => {
+                if (document.getElementById('tenor-embed-script')) return;
+                const script = document.createElement('script');
+                script.id = 'tenor-embed-script';
+                script.type = 'text/javascript';
+                script.async = true;
+                script.src = 'https://tenor.com/embed.js';
+                document.body.appendChild(script);
+            };
+            loadTenorScript();
+
+            // Initial render
+            renderNavigation();
+            renderMainContent();
+            setupGlobalEffects();
+        };
 
     </script>
-    <!-- Tenor Embed Script (Required for GIFs) -->
-    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
 </body>
 </html>
