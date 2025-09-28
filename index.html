@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETN Profile Nexus // The Struggler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;700;900&display=swap');
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        
+        body { min-height: 100vh; background-color: #030303; font-family: 'Inter', sans-serif; }
+        
+        p, li { font-size: 1.125rem; line-height: 1.75; } /* text-lg */
+        
+        .sidebar-nav-item { transition: all 0.2s ease-in-out; filter: drop-shadow(0 0 2px #8B0000); }
+        .sidebar-nav-item:hover { transform: scale(1.03); filter: drop-shadow(0 0 8px #FF0000) blur(0.5px); }
+        .glaze-box:hover { box-shadow: 0 0 15px rgba(139, 0, 0, 0.7); transform: translateY(-2px); transition: all 0.3s ease-in-out; filter: blur(0.1px); }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 10px #FF0000, 0 0 5px #8B0000 inset; }
+            50% { box-shadow: 0 0 20px #FF0000, 0 0 10px #8B0000 inset; }
+        }
+        .pulse-red { animation: pulse-red 2s infinite alternate; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+
+        /* GIF Sizing Fixes for Tenor */
+        .profile-gif-wrapper .tenor-gif-embed, .banner-gif-wrapper .tenor-gif-embed {
+            width: 100%; height: 100%; position: relative;
+        }
+        .profile-gif-wrapper iframe {
+            width: 120% !important; height: 120% !important;
+            position: absolute; top: -10% !important; left: -10% !important;
+            object-fit: cover;
+        }
+        .banner-gif-wrapper iframe {
+            width: 100% !important; height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-950 font-inter antialiased text-white">
+
+    <div id="app">
+        <!-- Application will be rendered here -->
+    </div>
+
+    <script type="module">
+        // --- Firebase Imports (UMD CDN) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, collection, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Global Variables (Mandatory Contextual Variables) ---
+        // This configuration is used only if the environment variable __firebase_config is not set or empty.
+        const FALLBACK_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC_NUR-AFRJypxvOjXNxB7jJ99hi8_p8SU",
+            authDomain: "etnprofile1.firebaseapp.com",
+            projectId: "etnprofile1",
+            storageBucket: "etnprofile1.firebasestorage.app",
+            messagingSenderId: "491364124653",
+            appId: "1:491364124653:web:599bccee168eef48c049e4",
+            measurementId: "G-V8VX3ME09M"
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'etn-profile-dev';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' && Object.keys(JSON.parse(__firebase_config)).length > 0
+            ? JSON.parse(__firebase_config)
+            : FALLBACK_FIREBASE_CONFIG;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
+
+        let firebaseApp;
+        let db;
+        let auth;
+        let authInitialized = false;
+
+        // --- Application State ---
+        let state = {
+            isAuthReady: false,
+            activeTab: 'profile',
+            isModalOpen: false,
+            imageId: null,
+            userId: 'Authenticating...'
+        };
+
+        // --- Utility Functions ---
+
+        /**
+         * Converts a File object (image) into a Base64 data URL string.
+         */
+        const fileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        };
+
+        /**
+         * Simple Web Audio API sound effect (Sword/Slash sound).
+         */
+        let audioCtx;
+        const playSwordSfx = () => {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                }
+
+                const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+
+                for (let i = 0; i < bufferSize; i++) {
+                    const decay = 1 - (i / bufferSize);
+                    data[i] = (Math.random() * 2 - 1) * decay * (i > bufferSize * 0.1 ? 1 : i / (bufferSize * 0.1));
+                }
+
+                const source = audioCtx.createBufferSource();
+                source.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = "highpass";
+                filter.frequency.setValueAtTime(4000, audioCtx.currentTime); 
+                
+                source.connect(filter);
+                filter.connect(audioCtx.destination);
+                
+                source.start();
+            } catch (error) {
+                console.error("Audio playback error:", error);
+            }
+        };
+
+        /**
+         * Renders the entire application based on the current state.
+         * This is the central rendering function for Vanilla JS equivalent of React's App.
+         */
+        const renderApp = () => {
+            const appDiv = document.getElementById('app');
+            // If in Viewer Mode, render only the viewer and stop.
+            if (state.imageId && authInitialized) {
+                renderImageViewer();
+                return;
+            }
+
+            // Normal Profile Mode
+            appDiv.innerHTML = `
+                <div class="min-h-screen flex flex-col lg:flex-row bg-gray-950 text-white">
+                    <aside id="sidebar" class="w-full lg:w-80 bg-black p-6 shadow-2xl shadow-red-900/40 border-r-4 border-red-900 sticky top-0 z-10"></aside>
+                    <main id="main-content-area" class="lg:col-span-3 p-4 sm:p-8 flex-1"></main>
+                </div>
+                <div id="modal-container"></div>
+            `;
+            
+            renderSidebar();
+            renderMainContent();
+            renderModal();
+            // This is necessary to re-initialize lucide icons after injecting HTML
+            lucide.createIcons();
+        };
+        
+        /**
+         * Renders the sidebar navigation.
+         */
+        const renderSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+
+            sidebar.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="w-32 h-32 bg-black rounded-full border-4 border-red-700 pulse-red overflow-hidden relative mb-4 profile-gif-wrapper">
+                        <div class="tenor-gif-embed" data-postid="5769121116284891944" data-share-method="host" data-aspect-ratio="0.9" data-width="100%">
+                            <a href="https://tenor.com/view/berserk-gif-5769121116284891944">Berserk GIF</a>
+                        </div> 
+                    </div>
+
+                    <h1 class="text-3xl font-cinzel font-black text-red-500 tracking-wider">ETNS PROFILE</h1>
+                    <p class="text-lg text-gray-400 mt-1">THE STRUGGLER</p>
+
+                    <button 
+                        id="connect-btn"
+                        class="mt-6 w-full py-3 bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/60 transition duration-300 transform hover:scale-[1.02] hover:bg-red-600"
+                    >
+                        INITIATE CONNECTION
+                    </button>
+                </div>
+
+                <nav class="mt-10 space-y-4" id="nav-links">
+                    ${NavItem({ icon: 'Zap', label: "PROFILE NEXUS", tabName: "profile" })}
+                    ${NavItem({ icon: 'Code', label: "PRODUCTS", tabName: "products", anchorId: "products" })}
+                    ${NavItem({ icon: 'Music', label: "SOUNDTRACK", tabName: "soundtrack", anchorId: "soundtrack-section" })}
+                    ${NavItem({ icon: 'Image', label: "IMAGE HOSTER", tabName: "hoster" })}
+                    ${NavItem({ icon: 'DollarSign', label: "CRYPTO WALLETS & PAYPAL", tabName: "wallets" })}
+                    ${NavItem({ icon: 'Users', label: "JOIN THE DISCORD!", tabName: "discord" })}
+                </nav>
+                
+                <div class="mt-8 pt-4 border-t border-red-900">
+                     <p class="text-xs text-gray-600">User ID: <span class="text-gray-500 font-mono break-all">${state.userId}</span></p>
+                </div>
+            `;
+            
+            // Attach Events
+            sidebar.querySelector('#connect-btn').addEventListener('click', () => {
+                playSwordSfx();
+                state.isModalOpen = true;
+                renderModal();
+            });
+
+            sidebar.querySelectorAll('.nav-item').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const tabName = e.currentTarget.dataset.tab;
+                    const anchorId = e.currentTarget.dataset.anchor;
+                    handleTabChange(tabName, anchorId);
+                });
+            });
+        };
+        
+        /**
+         * Generates the HTML for a single navigation item.
+         */
+        const NavItem = ({ icon, label, tabName, anchorId = null }) => {
+            const isActive = state.activeTab === tabName || (['products', 'soundtrack'].includes(tabName) && state.activeTab === 'profile');
+            const activeClass = isActive 
+                ? 'bg-red-800 text-white shadow-inner shadow-black/50 border border-red-600'
+                : 'text-gray-400 hover:bg-gray-900/50 hover:text-red-300';
+            
+            return `
+                <button
+                    data-tab="${tabName}"
+                    data-anchor="${anchorId || ''}"
+                    data-interactive="true"
+                    class="nav-item sidebar-nav-item w-full flex items-center p-3 rounded-xl transition duration-200 text-left font-bold tracking-wider ${activeClass}"
+                >
+                    <i data-lucide="${icon}" class="w-5 h-5 mr-3"></i>
+                    ${label}
+                </button>
+            `;
+        };
+
+        /**
+         * Renders the main content area based on the active tab.
+         */
+        const renderMainContent = () => {
+            const mainArea = document.getElementById('main-content-area');
+            if (!mainArea) return;
+
+            let contentHTML = '';
+            
+            // Core Profile Content
+            const profileContent = `
+                <div class="animate-fadeIn space-y-12">
+                    <!-- CORE TENETS -->
+                    <section>
+                        <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-6 border-b-2 border-red-800 pb-2">CORE TENETS</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            ${[
+                                { name: 'FAST', emoji: '⚡️', description: 'Zero-latency execution. Every millisecond secured.' },
+                                { name: 'DISCRETE', emoji: '👻', description: 'Operate in the shadows. Complete anonymity guaranteed.' },
+                                { name: 'UNTRACKABLE', emoji: '🛰️', description: 'Beyond the gaze of all surveillance. Ghost in the machine.' },
+                                { name: 'UNBANNABLE', emoji: '🛡️', description: 'Systems designed for absolute resilience against detection.' },
+                                { name: 'EVOLVING', emoji: '♾️', description: 'The code is always learning, adapting, and conquering.' },
+                            ].map(tenet => `
+                                <div class="glaze-box p-4 text-center rounded-xl border border-red-700/70 bg-gray-900/60 hover:bg-gray-800 transition duration-300 shadow-lg shadow-black/50">
+                                    <p class="text-4xl mb-2">${tenet.emoji}</p>
+                                    <p class="font-extrabold text-xl text-red-400 tracking-wider mb-2">${tenet.name}</p>
+                                    <p class="text-xs text-gray-400 italic leading-snug break-words">${tenet.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+
+                    <!-- PRODUCTS -->
+                    <section id="products">
+                        <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-6 border-b-2 border-red-800 pb-2">PRODUCTS</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            ${ProductCard({ 
+                                title: "ETNBOT", 
+                                description: "This is ETNBOT, the world's best nitro sniper, forged for speed and secrecy. A true digital weapon.",
+                                buttonText: "View Details",
+                                link: "https://hoster1-p26cx6enm-seirtspids-projects.vercel.app/etnbot_sniper_thread_design.html"
+                            })}
+                            ${ProductCard({ title: "COMING SOON", description: "The next shadow project is in development, focusing on decentralized identity.", isPlaceholder: true })}
+                            ${ProductCard({ title: "COMING SOON", description: "A new digital weapon awaits creation, codenamed 'Phantom'."
+                            , isPlaceholder: true })}
+                        </div>
+                    </section>
+
+                    <!-- SOUNDTRACK -->
+                    <section id="soundtrack-section">
+                        <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-6 border-b-2 border-red-800 pb-2">SOUNDTRACK OF FATE</h2>
+                        <div class="rounded-xl overflow-hidden shadow-2xl shadow-red-900/70 border border-red-700">
+                            <iframe 
+                                src="https://open.spotify.com/embed/playlist/7ASHXx9Hah5saHxR92tUS5?utm_source=generator&theme=0" 
+                                width="100%" 
+                                height="380" 
+                                frameborder="0" 
+                                allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"
+                                title="Spotify Playlist Embed"
+                                class="border-0"
+                            ></iframe>
+                        </div>
+                    </section>
+                </div>
+            `;
+            
+            // Content Switch
+            switch (state.activeTab) {
+                case 'profile':
+                    contentHTML = profileContent;
+                    break;
+                case 'wallets':
+                    contentHTML = renderWalletsContent();
+                    break;
+                case 'discord':
+                    contentHTML = renderDiscordContent();
+                    break;
+                case 'hoster':
+                    contentHTML = renderImageUploader();
+                    break;
+                default:
+                    contentHTML = `<div class="text-red-500 text-center py-10">Select a tab to view content.</div>`;
+            }
+
+            mainArea.innerHTML = `
+                <div class="max-w-4xl mx-auto">
+                    <!-- WELCOME BANNER (GIF) -->
+                    <div class="relative h-40 sm:h-64 bg-black rounded-xl overflow-hidden shadow-2xl shadow-red-900/70 border-4 border-red-700/70 mb-10">
+                        <div class="relative w-full h-full banner-gif-wrapper">
+                            <div class="tenor-gif-embed" data-postid="12587464080199064649" data-share-method="host" data-aspect-ratio="1.31053" data-width="100%">
+                                <a href="https://tenor.com/view/berserk-guts-realayax-ayax-ayaz-gif-12587464080199064649">Berserk Guts GIF</a>
+                            </div> 
+                        </div>
+                    </div>
+
+                    <!-- BIO SECTION -->
+                    <section class="mb-10 p-6 bg-gray-900/70 backdrop-blur-sm rounded-xl border border-red-800 shadow-2xl shadow-black/60">
+                        <h2 class="text-2xl font-cinzel font-bold text-red-400 mb-4 border-b-2 border-red-900 pb-1">THE STRUGGLER'S MANIFESTO</h2>
+                        <p class="text-gray-300 text-lg mb-4 leading-relaxed">
+                            I am an architect of digital domains, a dedicated <strong>Website Developer</strong> and <strong>Software Developer</strong> who thrives on forging resilient systems from the ground up. My focus is on creating <strong>robust, high-performance engines</strong> and dynamic user interfaces that feel intuitive and powerful. Whether I'm optimizing a backend's efficiency or meticulously perfecting a frontend component, my passion lies in bringing complex digital ideas to vibrant, functional life.
+                        </p>
+                        <ul class="text-base text-gray-400 flex flex-wrap gap-x-4">
+                            <li class="font-bold text-red-300">Core Languages:</li>
+                            <li class="border-r border-red-900 pr-4">C++</li>
+                            <li class="border-r border-red-900 pr-4">Python</li>
+                            <li class="border-r border-red-900 pr-4">HTML</li>
+                            <li class="border-r border-red-900 pr-4">JavaScript</li>
+                            <li class="border-r border-red-900 pr-4">React</li>
+                            <li class="pr-0">Firebase</li>
+                        </ul>
+                    </section>
+                    
+                    <div id="tab-content">${contentHTML}</div>
+                </div>
+            `;
+            
+            // Re-attach listeners for dynamically rendered content (Wallets & Hoster)
+            if (state.activeTab === 'wallets') {
+                attachWalletListeners();
+            } else if (state.activeTab === 'hoster') {
+                attachHosterListeners();
+            }
+        };
+
+        /**
+         * Product Card Template
+         */
+        const ProductCard = ({ title, description, buttonText, link, isPlaceholder }) => {
+            const classes = isPlaceholder 
+                ? 'bg-gray-800 border-gray-700 text-gray-500 opacity-60' 
+                : 'bg-gray-900 border-red-700 text-gray-300 shadow-xl shadow-red-900/30 hover:border-red-500';
+            
+            return `
+                <div class="p-5 rounded-xl border-2 transition duration-300 ${classes} transform hover:scale-[1.01]">
+                    <h3 class="text-xl font-cinzel font-bold mb-2 tracking-wide text-red-400">${title}</h3>
+                    <p class="text-base mb-4">${description}</p>
+                    ${!isPlaceholder ? `
+                        <a 
+                            href="${link}" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            onclick="playSwordSfx();"
+                            class="inline-block px-5 py-2 bg-red-600 rounded-lg text-white font-bold hover:bg-red-700 transition duration-300 shadow-lg hover:shadow-red-500/50"
+                        >
+                            ${buttonText}
+                        </a>
+                    ` : ''}
+                </div>
+            `;
+        };
+        
+        /**
+         * Wallets Tab Content
+         */
+        const renderWalletsContent = () => {
+            const paymentMethods = [
+                { name: 'BTC', address: 'bc1q22hmdy35ck278rdq376ynx0846xwgf289xg8vn', icon: '₿', type: 'copy' },
+                { name: 'LTC', address: 'LbjXnR5cA5DLoJ1LSgSnVa4CCdFzbngptQ', icon: 'Ł', type: 'copy' },
+                { name: 'SOL', address: 'GptR8TrPw8R1ChmRfJLyDS3ihnRa8V2t3ZMbLWf6aZBZ', icon: '◎', type: 'copy' },
+                { name: 'ETH', address: '0x2390eb79E0436EcE58E6c171F1E0400e08AA1201', icon: 'Ξ', type: 'copy' },
+                { name: 'PayPal', address: 'https://www.paypal.com/ncp/payment/E57JDEF7FM28C', icon: 'P', type: 'link' },
+            ];
+
+            return `
+                <div class="animate-fadeIn p-4 sm:p-0">
+                    <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-8 border-b-2 border-red-800 pb-2">CRYPTO WALLETS & PAYPAL</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${paymentMethods.map(method => `
+                            <div class="payment-card bg-gray-900/70 p-5 rounded-xl border-2 border-red-800 shadow-xl shadow-black/60 flex flex-col transition duration-300 hover:bg-gray-800 hover:border-red-600">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="text-4xl font-serif font-black text-red-400">${method.icon}</div>
+                                    <h3 class="text-2xl font-cinzel font-bold text-white">${method.name}</h3>
+                                </div>
+                                <p class="text-sm text-gray-400 truncate mb-4 font-mono">${method.type === 'link' ? method.address.split('/').slice(0, 3).join('/') : method.address}</p>
+                                <button
+                                    data-action="${method.type === 'link' ? 'link' : 'copy'}"
+                                    data-address="${method.address}"
+                                    class="wallet-action-btn mt-auto w-full py-2.5 rounded-lg text-base font-bold transition duration-200 shadow-md ${
+                                        method.type === 'link' 
+                                            ? 'bg-red-600 text-white hover:bg-red-700 hover:shadow-red-500/50'
+                                            : 'bg-red-800 text-red-100 hover:bg-red-700 hover:shadow-red-500/50'
+                                    }"
+                                >
+                                    ${method.type === 'link' ? 'VISIT LINK' : 'COPY ADDRESS'}
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        };
+
+        const attachWalletListeners = () => {
+            document.querySelectorAll('.wallet-action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    playSwordSfx();
+                    const action = e.currentTarget.dataset.action;
+                    const address = e.currentTarget.dataset.address;
+
+                    if (action === 'copy') {
+                        const tempInput = document.createElement('textarea');
+                        tempInput.value = address;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        console.log(`Address copied: ${address}`);
+                    } else if (action === 'link') {
+                        window.open(address, '_blank');
+                    }
+                });
+            });
+        };
+        
+        /**
+         * Discord Tab Content
+         */
+        const renderDiscordContent = () => {
+            return `
+                <div class="animate-fadeIn flex flex-col items-center justify-center p-10 bg-gray-900/70 rounded-xl border-2 border-red-800 shadow-2xl shadow-red-900/50">
+                    <i data-lucide="Users" class="w-16 h-16 text-red-500 mb-6 pulse-red"></i>
+                    <h2 class="text-4xl font-cinzel font-bold text-white mb-6 text-center">JOIN THE DISCORD!</h2>
+                    <a 
+                        href="https://www.discord.gg/1ncel" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="playSwordSfx()"
+                        class="w-full sm:w-96 py-4 bg-[#5865F2] text-white text-xl font-bold rounded-xl flex items-center justify-center space-x-3 transition duration-300 transform hover:scale-105 shadow-xl hover:shadow-[#5865F2]/60 border border-blue-400"
+                    >
+                        <i data-lucide="Globe" class="w-6 h-6"></i>
+                        <span>ENTER THE DOMAIN</span>
+                    </a>
+                </div>
+            `;
+        };
+        
+        /**
+         * Image Host Portal Content
+         */
+        let hosterState = {
+            file: null,
+            uploadStatus: '',
+            shareableUrl: '',
+            isLoading: false
+        };
+        
+        const setHosterState = (newState) => {
+            hosterState = { ...hosterState, ...newState };
+            if (state.activeTab === 'hoster') {
+                const tabContent = document.getElementById('tab-content');
+                if (tabContent) {
+                    tabContent.innerHTML = renderImageUploader();
+                    attachHosterListeners();
+                    lucide.createIcons();
+                }
+            }
+        };
+
+        const renderImageUploader = () => {
+            const { file, uploadStatus, shareableUrl, isLoading } = hosterState;
+            const isServiceReady = state.isAuthReady && authInitialized;
+            
+            return `
+                <div class="animate-fadeIn p-4 sm:p-8 max-w-4xl w-full mx-auto">
+                    <h1 class="text-4xl sm:text-5xl font-cinzel font-extrabold text-red-500 mb-2 border-b-2 border-red-700 pb-2">
+                        <i data-lucide="Image" class="w-8 h-8 mr-2 inline-block -mt-2"></i>
+                        // Image Host Portal
+                    </h1>
+                    <p class="text-gray-300 text-lg mb-6 border-l-4 border-red-700 pl-3">
+                        Upload your digital fragment and weave it into the Threads of Destiny. Links are generated for <strong>etn.lol</strong> and are publicly viewable.
+                    </p>
+
+                    <!-- Upload Area -->
+                    <div class="space-y-4 mb-6 p-6 border border-red-800 rounded-xl bg-gray-900 shadow-inner shadow-black/50">
+                        <input
+                            type="file"
+                            id="image-file-input"
+                            accept="image/*"
+                            class="w-full text-base text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-base file:font-bold file:bg-red-700 file:text-white hover:file:bg-red-600 cursor-pointer transition file:shadow-md file:shadow-red-900/50"
+                        />
+                        
+                        <button
+                            id="upload-btn"
+                            disabled="${!file || isLoading || !isServiceReady}"
+                            class="w-full py-3 rounded-xl text-white font-bold transition duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-red-800/40 ${
+                                !file || isLoading || !isServiceReady ? 'bg-gray-700 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/60 transform hover:scale-[1.01]'
+                            }"
+                        >
+                            ${isLoading ? `
+                                <i data-lucide="Loader2" class="w-6 h-6 animate-spin"></i>
+                                <span>Forging Destiny...</span>
+                            ` : `
+                                <i data-lucide="UploadCloud" class="w-6 h-6"></i>
+                                <span>Forge Shareable Link (etn.lol)</span>
+                            `}
+                        </button>
+
+                        <p id="upload-status" class="text-base font-semibold ${shareableUrl ? 'text-green-400' : 'text-yellow-400'} min-h-[1.5rem]">
+                            ${uploadStatus}
+                        </p>
+                    </div>
+
+                    <!-- Shareable URL Output -->
+                    ${shareableUrl ? `
+                        <div class="mt-8 p-5 bg-gray-800 rounded-xl border border-red-500/50 space-y-3 shadow-2xl">
+                            <p class="text-red-400 font-bold flex items-center text-lg">
+                                <i data-lucide="Eye" class="w-6 h-6 mr-3"></i>
+                                Link of Fate:
+                            </p>
+                            <div class="flex bg-gray-900 rounded-lg overflow-hidden border border-red-700/50">
+                                <input
+                                    type="text"
+                                    readonly
+                                    value="${shareableUrl}"
+                                    class="flex-1 p-3 text-base text-gray-200 bg-transparent truncate font-mono"
+                                />
+                                <button
+                                    id="copy-btn"
+                                    class="p-3 bg-red-600 hover:bg-red-700 text-white transition duration-200 flex items-center space-x-2 font-bold"
+                                >
+                                    <i data-lucide="Copy" class="w-5 h-5"></i>
+                                    <span class="hidden sm:inline">Copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        };
+        
+        // --- Hoster Logic ---
+
+        const handleHosterFileChange = (e) => {
+            const file = e.target.files[0];
+            setHosterState({ 
+                file: file,
+                shareableUrl: '',
+                uploadStatus: file ? `File selected: ${file.name}` : ''
+            });
+        };
+
+        const handleHosterUpload = async () => {
+            playSwordSfx();
+            const file = hosterState.file;
+            const isServiceReady = state.isAuthReady && authInitialized;
+
+            if (!file) {
+                setHosterState({ uploadStatus: 'Please select an image file to upload.' });
+                return;
+            }
+            if (!isServiceReady || !db || !auth) {
+                setHosterState({ uploadStatus: 'Error: Service not ready. Check connection and Firebase configuration.' });
+                return;
+            }
+            
+            setHosterState({ uploadStatus: '', shareableUrl: '', isLoading: true });
+
+            const publicCollectionPath = `artifacts/${appId}/public/data/shared_images`;
+            const TARGET_DOMAIN_URL = 'https://etn.lol/'; 
+            const MAX_RETRIES = 5;
+
+            try {
+                const base64Data = await fileToBase64(file);
+                setHosterState({ uploadStatus: 'Image encoded. Saving to cloud...' });
+
+                let lastError = null;
+                let newDocId = null;
+
+                for (let i = 0; i < MAX_RETRIES; i++) {
+                    try {
+                        const newDocRef = await addDoc(collection(db, publicCollectionPath), {
+                            base64: base64Data,
+                            filename: file.name,
+                            uploadedAt: new Date().toISOString(),
+                            ownerId: auth.currentUser?.uid || 'anonymous',
+                            mimeType: file.type,
+                        });
+                        
+                        newDocId = newDocRef.id;
+                        lastError = null;
+                        break; 
+
+                    } catch (error) {
+                        lastError = error;
+                        if (i < MAX_RETRIES - 1) {
+                            const delay = Math.pow(2, i) * 1000;
+                            setHosterState({ uploadStatus: `Upload failed, retrying in ${delay / 1000}s...` });
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        }
+                    }
+                }
+
+                if (lastError) {
+                    throw lastError;
+                }
+                
+                const newShareableUrl = `${TARGET_DOMAIN_URL}?view=${newDocId}`;
+                setHosterState({ 
+                    shareableUrl: newShareableUrl, 
+                    uploadStatus: 'Success! Image is now shareable on etn.lol.',
+                    file: null
+                });
+                document.getElementById('image-file-input').value = ''; // Clear input
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                setHosterState({ uploadStatus: `Upload failed: ${error.message.substring(0, 80)}...` });
+            } finally {
+                setHosterState({ isLoading: false });
+            }
+        };
+        
+        const handleHosterCopy = () => {
+            playSwordSfx();
+            const shareableUrl = hosterState.shareableUrl;
+            if (shareableUrl) {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = shareableUrl;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                setHosterState({ uploadStatus: 'URL copied to clipboard!' });
+                setTimeout(() => setHosterState({ uploadStatus: '' }), 2000);
+            }
+        };
+
+        const attachHosterListeners = () => {
+            const input = document.getElementById('image-file-input');
+            const uploadBtn = document.getElementById('upload-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            if (input) input.addEventListener('change', handleHosterFileChange);
+            if (uploadBtn) uploadBtn.addEventListener('click', handleHosterUpload);
+            if (copyBtn) copyBtn.addEventListener('click', handleHosterCopy);
+        };
+
+        // --- Image Viewer Logic (Takes over the entire screen) ---
+        let viewerState = {
+            imageData: null,
+            isLoading: true,
+            error: null,
+        };
+        
+        const setViewerState = (newState) => {
+            viewerState = { ...viewerState, ...newState };
+            if (state.imageId) {
+                 renderImageViewer(); // Re-render if in viewer mode
+            }
+        };
+
+        const handleCloseViewer = () => {
+            playSwordSfx();
+            // Remove the view parameter from the URL
+            const newUrl = window.location.href.split('?')[0];
+            window.history.pushState({}, document.title, newUrl);
+            state.imageId = null; // Exit viewer mode
+            document.body.innerHTML = '<div id="app"></div>'; // Clear current body
+            renderApp(); // Rerender the main app
+        };
+
+        const renderImageViewer = () => {
+            const publicCollectionPath = `artifacts/${appId}/public/data/shared_images`;
+            
+            const fetchImage = async (imageId) => {
+                setViewerState({ isLoading: true, error: null });
+
+                if (!db || !imageId) {
+                    setViewerState({ error: 'Database or Image ID is missing.', isLoading: false });
+                    return;
+                }
+
+                try {
+                    const imageRef = doc(db, publicCollectionPath, imageId);
+                    const docSnap = await getDoc(imageRef);
+
+                    if (docSnap.exists()) {
+                        setViewerState({ imageData: docSnap.data().base64, isLoading: false });
+                    } else {
+                        setViewerState({ error: `Image not found with ID: ${imageId}. It may have been purged.`, isLoading: false });
+                    }
+                } catch (e) {
+                    console.error("Error fetching image:", e);
+                    setViewerState({ error: 'Failed to load image data. Connection issue?', isLoading: false });
+                }
+            };
+            
+            // Initial/Update fetch
+            if (viewerState.isLoading && !viewerState.imageData && !viewerState.error) {
+                if (authInitialized) {
+                    fetchImage(state.imageId);
+                } else {
+                    setViewerState({ error: "Service unavailable. Firebase not configured.", isLoading: false });
+                }
+            }
+
+            let viewerHTML;
+
+            if (viewerState.isLoading) {
+                viewerHTML = `
+                    <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#070707] text-white p-4 z-[999]">
+                        <i data-lucide="Loader2" class="w-12 h-12 text-red-400 animate-spin"></i>
+                        <p class="mt-4 text-xl font-bold text-red-300">Summoning image from the ether...</p>
+                        <p class="text-sm text-gray-400 mt-2">ID: ${state.imageId}</p>
+                    </div>
+                `;
+            } else if (viewerState.error) {
+                 viewerHTML = `
+                    <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#070707] text-white p-6 z-[999]">
+                        <i data-lucide="X" class="w-16 h-16 text-red-500"></i>
+                        <h2 class="text-3xl font-cinzel font-bold mt-4 text-red-400">Error of Destiny</h2>
+                        <p class="mt-4 text-lg text-red-300 text-center">${viewerState.error}</p>
+                        <button 
+                            id="viewer-close-btn"
+                            class="mt-8 px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl text-white font-semibold transition shadow-md shadow-red-900/50"
+                        >
+                            Return to Profile
+                        </button>
+                    </div>
+                `;
+            } else {
+                viewerHTML = `
+                    <div class="fixed inset-0 bg-[#070707] flex flex-col items-center justify-center p-4 z-[999]">
+                        <button 
+                            id="viewer-close-btn"
+                            class="absolute top-4 right-4 p-3 bg-red-600 hover:bg-red-700 rounded-full text-white transition shadow-xl z-50 flex items-center space-x-2"
+                        >
+                            <i data-lucide="X" class="w-6 h-6"></i>
+                            <span class="hidden sm:inline font-semibold">Close Viewer</span>
+                        </button>
+                        <div class="relative max-w-full max-h-full">
+                            <img 
+                                src="${viewerState.imageData}" 
+                                alt="Shared Image ID: ${state.imageId}" 
+                                class="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl shadow-red-900/50 border-4 border-red-700"
+                            />
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Inject and attach close listener
+            document.body.innerHTML = viewerHTML;
+            const closeBtn = document.getElementById('viewer-close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', handleCloseViewer);
+            }
+            lucide.createIcons(); // Re-initialize icons
+        };
+        
+        /**
+         * Renders the Rickroll Modal.
+         */
+        const renderModal = () => {
+            const modalContainer = document.getElementById('modal-container');
+            if (!modalContainer) return;
+            
+            if (!state.isModalOpen) {
+                modalContainer.innerHTML = '';
+                return;
+            }
+
+            modalContainer.innerHTML = `
+                <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+                    <div class="relative" id="modal-content">
+                        <div class="p-8 bg-gray-900 rounded-xl border-4 border-red-700 shadow-2xl shadow-red-900/70">
+                            <h2 class="text-3xl font-cinzel font-bold text-red-500 mb-4 border-b border-red-800 pb-2">CONNECTION ESTABLISHED</h2>
+                            <div class="relative w-full aspect-video min-w-[300px] sm:min-w-[560px]">
+                                 <iframe 
+                                    width="560" 
+                                    height="315" 
+                                    src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&mute=0&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&widgetid=1" 
+                                    title="YouTube video player" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen 
+                                    class="w-full h-full rounded-lg"
+                                ></iframe>
+                            </div>
+                            <p class="text-lg text-gray-400 mt-4 text-center">Protocol 404: Never Gonna Give You Up</p>
+                            <button 
+                                id="modal-close-btn"
+                                class="mt-6 w-full py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition"
+                            >
+                                CLOSE WINDOW
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Attach Events
+            const backdrop = document.getElementById('modal-backdrop');
+            const closeBtn = document.getElementById('modal-close-btn');
+            
+            backdrop.addEventListener('click', (e) => {
+                if (e.target.id === 'modal-backdrop') {
+                    state.isModalOpen = false;
+                    renderModal();
+                }
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                state.isModalOpen = false;
+                renderModal();
+            });
+        };
+        
+        /**
+         * Handler for tab changes and optional scrolling.
+         */
+        const handleTabChange = (tabName, anchorId = null) => {
+            playSwordSfx();
+            
+            const targetTab = ['products', 'soundtrack'].includes(tabName) ? 'profile' : tabName;
+            state.activeTab = targetTab;
+
+            renderApp(); // Re-render the main content area
+
+            if (anchorId && targetTab === 'profile') {
+                setTimeout(() => {
+                    const element = document.getElementById(anchorId);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100); 
+            }
+        };
+
+        // --- Core Initialization ---
+
+        const initFirebaseAndApp = async () => {
+            try {
+                if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.projectId !== "YOUR_FIREBASE_PROJECT_ID") {
+                    setLogLevel('debug');
+                    firebaseApp = initializeApp(firebaseConfig);
+                    db = getFirestore(firebaseApp);
+                    auth = getAuth(firebaseApp);
+                    authInitialized = true;
+                } else {
+                    console.warn("Using placeholder Firebase configuration. Data persistence will not work until real keys are provided.");
+                }
+            } catch (e) {
+                console.error("Firebase Initialization Failed:", e);
+                authInitialized = false;
+            }
+
+            // Authentication
+            if (authInitialized && auth) {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    state.isAuthReady = true;
+                    state.userId = auth.currentUser?.uid || 'anonymous';
+                } catch (e) {
+                    console.error("Authentication failed:", e);
+                    state.isAuthReady = false;
+                    state.userId = 'Auth Failed';
+                }
+            }
+            
+            // Check URL parameters for viewer mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('view');
+            if (id) {
+                state.imageId = id;
+            } else {
+                state.imageId = null;
+            }
+
+            renderApp(); // Initial render after auth/URL check
+        };
+        
+        const initUIEffects = () => {
+             // Custom Cursors logic
+            document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#E70000\' stroke-width=\'2\' d=\'M16 4v24M4 16h24\'/><circle fill=\'#E70000\' r=\'1\' cx=\'16\' cy=\'16\'/></svg>"), auto';
+            
+            const handleMouseMove = (e) => {
+                const interactiveElement = e.target.closest('a, button, [data-interactive="true"]');
+                if (interactiveElement) {
+                    document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><circle fill=\'#FF0000\' r=\'5\' cx=\'16\' cy=\'16\' opacity=\'0.8\'/></svg>"), pointer';
+                } else {
+                    document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#E70000\' stroke-width=\'2\' d=\'M16 4v24M4 16h24\'/><circle fill=\'#E70000\' r=\'1\' cx=\'16\' cy=\'16\'/></svg>"), auto';
+                }
+            };
+
+            const handleClick = () => {
+                 document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#FF0000\' stroke-width=\'3\' d=\'M16 0v32M0 16h32\'/><circle fill=\'none\' stroke=\'#FF0000\' stroke-width=\'3\' r=\'10\' cx=\'16\' cy=\'16\'/></svg>"), pointer';
+                 setTimeout(() => {
+                     document.body.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path fill=\'none\' stroke=\'#E70000\' stroke-width=\'2\' d=\'M16 4v24M4 16h24\'/><circle fill=\'#E70000\' r=\'1\' cx=\'16\' cy=\'16\'/></svg>"), auto';
+                 }, 100);
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mousedown', handleClick);
+        };
+
+        // Start the application after the DOM is ready
+        window.onload = () => {
+            initUIEffects();
+            initFirebaseAndApp();
+        };
+
+    </script>
+</body>
+</html>
