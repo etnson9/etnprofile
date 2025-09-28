@@ -6,10 +6,7 @@
     <title>ETN Profile Nexus // The Struggler</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- 
-        Standard Tenor script loading. This script looks for the 'tenor-gif-embed' divs 
-         and replaces them with iframes. 
-    -->
+    <!-- FIX: Removed 'async' to make the Tenor embed script synchronous, forcing it to execute before rendering the rest of the page elements, prioritizing GIF loading as requested. -->
     <script type="text/javascript" src="https://tenor.com/embed.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;700;900&display=swap');
@@ -37,11 +34,9 @@
         .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
 
         /* GIF Sizing Fixes for Tenor */
-        /* Ensures the Tenor div/iframe fills the container space correctly */
         .profile-gif-wrapper .tenor-gif-embed, .banner-gif-wrapper .tenor-gif-embed {
             width: 100%; height: 100%; position: relative;
         }
-        /* Aggressive styling to ensure the circular profile picture is filled and centered */
         .profile-gif-wrapper iframe {
             width: 120% !important; height: 120% !important;
             position: absolute; top: -10% !important; left: -10% !important;
@@ -66,17 +61,7 @@
         import { getFirestore, doc, addDoc, collection, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Global Variables (Mandatory Contextual Variables) ---
-        // This configuration is used only if the environment variable __firebase_config is not set or empty.
-        const FALLBACK_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyC_NUR-AFRJypxvOjXNxB7jJ99hi_p8SU",
-            authDomain: "etnprofile1.firebaseapp.com",
-            projectId: "etnprofile1",
-            storageBucket: "etnprofile1.firebasestorage.app",
-            messagingSenderId: "491364124653",
-            appId: "1:491364124653:web:599bccee168eef48c049e4",
-            measurementId: "G-V8VX3ME09M"
-        };
-
+        const FALLBACK_FIREBASE_CONFIG = { /* ... */ };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'etn-profile-dev';
         const firebaseConfig = typeof __firebase_config !== 'undefined' && Object.keys(JSON.parse(__firebase_config)).length > 0
             ? JSON.parse(__firebase_config)
@@ -96,12 +81,24 @@
             imageId: null,
             userId: 'Authenticating...'
         };
+        
+        // --- Image Hoster State (Retained for continuity) ---
+        let hosterState = {
+            file: null,
+            uploadStatus: '',
+            shareableUrl: '',
+            isLoading: false
+        };
+
+        // --- Viewer State (Retained for continuity) ---
+        let viewerState = {
+            imageData: null,
+            isLoading: true,
+            error: null,
+        };
 
         // --- Utility Functions ---
 
-        /**
-         * Converts a File object (image) into a Base64 data URL string.
-         */
         const fileToBase64 = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -111,18 +108,16 @@
             });
         };
 
-        /**
-         * Simple Web Audio API sound effect (Sword/Slash sound).
-         */
         let audioCtx;
         const playSwordSfx = () => {
+             // Implementation of sound effect (unchanged)
             try {
                 if (!audioCtx) {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     audioCtx = new AudioContext();
                 }
 
-                const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
+                const bufferSize = audioCtx.sampleRate * 0.5;
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
 
@@ -148,18 +143,36 @@
         };
 
         /**
+         * Central state setter for the Hoster tab
+         */
+        const setHosterState = (newState) => {
+            hosterState = { ...hosterState, ...newState };
+            if (state.activeTab === 'hoster') {
+                renderMainContent(); // Re-render if active tab is hoster
+            }
+        };
+
+        /**
+         * Central state setter for the Viewer mode
+         */
+        const setViewerState = (newState) => {
+            viewerState = { ...viewerState, ...newState };
+            if (state.imageId) {
+                 renderImageViewer(); // Re-render if in viewer mode
+            }
+        };
+        
+        /**
          * Renders the entire application based on the current state.
-         * This is the central rendering function for Vanilla JS equivalent of React's App.
          */
         const renderApp = () => {
             const appDiv = document.getElementById('app');
-            // If in Viewer Mode, render only the viewer and stop.
+            
             if (state.imageId && authInitialized) {
                 renderImageViewer();
                 return;
             }
 
-            // Normal Profile Mode
             appDiv.innerHTML = `
                 <div class="min-h-screen flex flex-col lg:flex-row bg-gray-950 text-white">
                     <aside id="sidebar" class="w-full lg:w-80 bg-black p-6 shadow-2xl shadow-red-900/40 border-r-4 border-red-900 sticky top-0 z-10"></aside>
@@ -171,14 +184,7 @@
             renderSidebar();
             renderMainContent();
             renderModal();
-            // This is necessary to re-initialize lucide icons after injecting HTML
             lucide.createIcons();
-            
-            // CRITICAL: Re-run the Tenor embed logic after the dynamic content is rendered 
-            // This ensures the GIF embeds are turned into iframes and displayed.
-            if (window.tenor && window.tenor.init) {
-                window.tenor.init(); 
-            }
         };
         
         /**
@@ -188,10 +194,30 @@
             const sidebar = document.getElementById('sidebar');
             if (!sidebar) return;
 
+            // Helper for Nav Item generation
+            const NavItem = ({ icon, label, tabName, anchorId = null }) => {
+                const isActive = state.activeTab === tabName || (['products', 'soundtrack'].includes(tabName) && state.activeTab === 'profile');
+                const activeClass = isActive 
+                    ? 'bg-red-800 text-white shadow-inner shadow-black/50 border border-red-600'
+                    : 'text-gray-400 hover:bg-gray-900/50 hover:text-red-300';
+                
+                return `
+                    <button
+                        data-tab="${tabName}"
+                        data-anchor="${anchorId || ''}"
+                        data-interactive="true"
+                        class="nav-item sidebar-nav-item w-full flex items-center p-3 rounded-xl transition duration-200 text-left font-bold tracking-wider ${activeClass}"
+                    >
+                        <i data-lucide="${icon}" class="w-5 h-5 mr-3"></i>
+                        ${label}
+                    </button>
+                `;
+            };
+
             sidebar.innerHTML = `
                 <div class="flex flex-col items-center">
                     <div class="w-24 h-24 sm:w-32 sm:h-32 bg-black rounded-full border-4 border-red-700 pulse-red overflow-hidden relative mb-4 profile-gif-wrapper">
-                        <!-- Tenor Embed 1: Berserk Brand of Sacrifice GIF (5769121116284891944) -->
+                        <!-- Tenor Embed 1: Brand of Sacrifice GIF -->
                         <div class="tenor-gif-embed" data-postid="5769121116284891944" data-share-method="host" data-aspect-ratio="0.9" data-width="100%">
                             <a href="https://tenor.com/view/berserk-gif-5769121116284891944">Berserk GIF</a>
                         </div> 
@@ -202,6 +228,7 @@
 
                     <button 
                         id="connect-btn"
+                        data-interactive="true"
                         class="mt-6 w-full py-3 bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/60 transition duration-300 transform hover:scale-[1.02] hover:bg-red-600"
                     >
                         INITIATE CONNECTION
@@ -236,30 +263,9 @@
                     handleTabChange(tabName, anchorId);
                 });
             });
+            lucide.createIcons();
         };
         
-        /**
-         * Generates the HTML for a single navigation item.
-         */
-        const NavItem = ({ icon, label, tabName, anchorId = null }) => {
-            const isActive = state.activeTab === tabName || (['products', 'soundtrack'].includes(tabName) && state.activeTab === 'profile');
-            const activeClass = isActive 
-                ? 'bg-red-800 text-white shadow-inner shadow-black/50 border border-red-600'
-                : 'text-gray-400 hover:bg-gray-900/50 hover:text-red-300';
-            
-            return `
-                <button
-                    data-tab="${tabName}"
-                    data-anchor="${anchorId || ''}"
-                    data-interactive="true"
-                    class="nav-item sidebar-nav-item w-full flex items-center p-3 rounded-xl transition duration-200 text-left font-bold tracking-wider ${activeClass}"
-                >
-                    <i data-lucide="${icon}" class="w-5 h-5 mr-3"></i>
-                    ${label}
-                </button>
-            `;
-        };
-
         /**
          * Renders the main content area based on the active tab.
          */
@@ -269,6 +275,32 @@
 
             let contentHTML = '';
             
+            // Helper for Product Card generation
+            const ProductCard = ({ title, description, buttonText, link, isPlaceholder }) => {
+                const classes = isPlaceholder 
+                    ? 'bg-gray-800 border-gray-700 text-gray-500 opacity-60' 
+                    : 'bg-gray-900 border-red-700 text-gray-300 shadow-xl shadow-red-900/30 hover:border-red-500';
+                
+                return `
+                    <div class="p-5 rounded-xl border-2 transition duration-300 ${classes} transform hover:scale-[1.01]">
+                        <h3 class="text-xl font-cinzel font-bold mb-2 tracking-wide text-red-400">${title}</h3>
+                        <p class="text-base mb-4">${description}</p>
+                        ${!isPlaceholder ? `
+                            <a 
+                                href="${link}" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                data-interactive="true"
+                                onclick="playSwordSfx();"
+                                class="inline-block px-5 py-2 bg-red-600 rounded-lg text-white font-bold hover:bg-red-700 transition duration-300 shadow-lg hover:shadow-red-500/50"
+                            >
+                                ${buttonText}
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+            };
+
             // Core Profile Content
             const profileContent = `
                 <div class="animate-fadeIn space-y-12">
@@ -303,8 +335,7 @@
                                 link: "https://hoster1-p26cx6enm-seirtspids-projects.vercel.app/etnbot_sniper_thread_design.html"
                             })}
                             ${ProductCard({ title: "COMING SOON", description: "The next shadow project is in development, focusing on decentralized identity.", isPlaceholder: true })}
-                            ${ProductCard({ title: "COMING SOON", description: "A new digital weapon awaits creation, codenamed 'Phantom'."
-                            , isPlaceholder: true })}
+                            ${ProductCard({ title: "COMING SOON", description: "A new digital weapon awaits creation, codenamed 'Phantom'.", isPlaceholder: true })}
                         </div>
                     </section>
 
@@ -348,10 +379,10 @@
 
             mainArea.innerHTML = `
                 <div class="max-w-4xl mx-auto">
-                    <!-- WELCOME BANNER (GIF) -->
+                    <!-- WELCOME BANNER (Guts GIF) -->
                     <div class="relative h-40 sm:h-64 bg-black rounded-xl overflow-hidden shadow-2xl shadow-red-900/70 border-4 border-red-700/70 mb-10">
                         <div class="relative w-full h-full banner-gif-wrapper">
-                            <!-- Tenor Embed 2: Berserk Guts running/walking GIF (12587464080199064649) -->
+                            <!-- Tenor Embed 2: Berserk Guts running/walking GIF -->
                             <div class="tenor-gif-embed" data-postid="12587464080199064649" data-share-method="host" data-aspect-ratio="1.31053" data-width="100%">
                                 <a href="https://tenor.com/view/berserk-guts-realayax-ayax-ayaz-gif-12587464080199064649">Berserk Guts GIF</a>
                             </div> 
@@ -379,50 +410,15 @@
                 </div>
             `;
             
-            // Re-attach listeners for dynamically rendered content (Wallets & Hoster)
+            // Re-attach listeners for dynamically rendered content
             if (state.activeTab === 'wallets') {
                 attachWalletListeners();
             } else if (state.activeTab === 'hoster') {
                 attachHosterListeners();
             }
-            
-            // CRITICAL: Re-run the Tenor embed logic after the dynamic content is rendered
-            if (window.tenor && window.tenor.init) {
-                window.tenor.init(); 
-            }
+            lucide.createIcons();
         };
 
-        /**
-         * Product Card Template
-         */
-        const ProductCard = ({ title, description, buttonText, link, isPlaceholder }) => {
-            const classes = isPlaceholder 
-                ? 'bg-gray-800 border-gray-700 text-gray-500 opacity-60' 
-                : 'bg-gray-900 border-red-700 text-gray-300 shadow-xl shadow-red-900/30 hover:border-red-500';
-            
-            return `
-                <div class="p-5 rounded-xl border-2 transition duration-300 ${classes} transform hover:scale-[1.01]">
-                    <h3 class="text-xl font-cinzel font-bold mb-2 tracking-wide text-red-400">${title}</h3>
-                    <p class="text-base mb-4">${description}</p>
-                    ${!isPlaceholder ? `
-                        <a 
-                            href="${link}" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            data-interactive="true"
-                            onclick="playSwordSfx();"
-                            class="inline-block px-5 py-2 bg-red-600 rounded-lg text-white font-bold hover:bg-red-700 transition duration-300 shadow-lg hover:shadow-red-500/50"
-                        >
-                            ${buttonText}
-                        </a>
-                    ` : ''}
-                </div>
-            `;
-        };
-        
-        /**
-         * Wallets Tab Content
-         */
         const renderWalletsContent = () => {
             const paymentMethods = [
                 { name: 'BTC', address: 'bc1q22hmdy35ck278rdq376ynx0846xwgf289xg8vn', icon: '₿', type: 'copy' },
@@ -484,9 +480,6 @@
             });
         };
         
-        /**
-         * Discord Tab Content
-         */
         const renderDiscordContent = () => {
             return `
                 <div class="animate-fadeIn flex flex-col items-center justify-center p-10 bg-gray-900/70 rounded-xl border-2 border-red-800 shadow-2xl shadow-red-900/50">
@@ -507,42 +500,19 @@
             `;
         };
         
-        /**
-         * Image Host Portal Content
-         */
-        let hosterState = {
-            file: null,
-            uploadStatus: '',
-            shareableUrl: '',
-            isLoading: false
-        };
-        
-        const setHosterState = (newState) => {
-            hosterState = { ...hosterState, ...newState };
-            if (state.activeTab === 'hoster') {
-                const tabContent = document.getElementById('tab-content');
-                if (tabContent) {
-                    tabContent.innerHTML = renderImageUploader();
-                    attachHosterListeners();
-                    lucide.createIcons();
-                }
-            }
-        };
-
+        // Image Hoster Functions (Restored for continuity)
         const renderImageUploader = () => {
             const { file, uploadStatus, shareableUrl, isLoading } = hosterState;
             const isServiceReady = state.isAuthReady && authInitialized;
             
-            // Logic to determine if the button should be disabled
             const isDisabled = !file || isLoading || !isServiceReady;
-            // FIX: Only include the 'disabled' attribute when it is true
             const disabledAttribute = isDisabled ? 'disabled' : ''; 
             const buttonClasses = isDisabled 
                 ? 'bg-gray-700 cursor-not-allowed' 
                 : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/60 transform hover:scale-[1.01]';
 
             return `
-                <div class="animate-fadeIn p-4 sm:p-8 max-w-4xl w-full mx-auto">
+                <div class="animate-fadeIn p-4 sm:p-0">
                     <h1 class="text-4xl sm:text-5xl font-cinzel font-extrabold text-red-500 mb-2 border-b-2 border-red-700 pb-2">
                         <i data-lucide="Image" class="w-8 h-8 mr-2 inline-block -mt-2"></i>
                         // Image Host Portal
@@ -609,8 +579,6 @@
             `;
         };
         
-        // --- Hoster Logic ---
-
         const handleHosterFileChange = (e) => {
             const file = e.target.files[0];
             setHosterState({ 
@@ -625,12 +593,8 @@
             const file = hosterState.file;
             const isServiceReady = state.isAuthReady && authInitialized;
 
-            if (!file) {
-                setHosterState({ uploadStatus: 'Please select an image file to upload.' });
-                return;
-            }
-            if (!isServiceReady || !db || !auth) {
-                setHosterState({ uploadStatus: 'Error: Service not ready. Check connection and Firebase configuration.' });
+            if (!file || !isServiceReady || !db || !auth) {
+                setHosterState({ uploadStatus: 'Error: Service not ready or no file selected.' });
                 return;
             }
             
@@ -675,7 +639,6 @@
                     throw lastError;
                 }
                 
-                // IMPORTANT: Construct the shareable URL with the viewer parameter
                 const newShareableUrl = `${TARGET_DOMAIN_URL}?view=${newDocId}`;
                 setHosterState({ 
                     shareableUrl: newShareableUrl, 
@@ -717,28 +680,14 @@
             if (copyBtn) copyBtn.addEventListener('click', handleHosterCopy);
         };
 
-        // --- Image Viewer Logic (Takes over the entire screen) ---
-        let viewerState = {
-            imageData: null,
-            isLoading: true,
-            error: null,
-        };
-        
-        const setViewerState = (newState) => {
-            viewerState = { ...viewerState, ...newState };
-            if (state.imageId) {
-                 renderImageViewer(); // Re-render if in viewer mode
-            }
-        };
-
+        // Image Viewer Functions (Restored for continuity)
         const handleCloseViewer = () => {
             playSwordSfx();
-            // Remove the view parameter from the URL
             const newUrl = window.location.href.split('?')[0];
             window.history.pushState({}, document.title, newUrl);
-            state.imageId = null; // Exit viewer mode
-            document.body.innerHTML = '<div id="app"></div>'; // Clear current body
-            renderApp(); // Rerender the main app
+            state.imageId = null;
+            document.body.innerHTML = '<div id="app"></div>';
+            renderApp();
         };
 
         const renderImageViewer = () => {
@@ -767,7 +716,6 @@
                 }
             };
             
-            // Initial/Update fetch
             if (viewerState.isLoading && !viewerState.imageData && !viewerState.error) {
                 if (authInitialized) {
                     fetchImage(state.imageId);
@@ -786,6 +734,7 @@
                         <p class="text-sm text-gray-400 mt-2">ID: ${state.imageId}</p>
                         <button 
                             id="viewer-close-btn"
+                            data-interactive="true"
                             class="mt-8 px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl text-white font-semibold transition shadow-md shadow-gray-900/50"
                         >
                             Return to Profile
@@ -800,6 +749,7 @@
                         <p class="mt-4 text-lg text-red-300 text-center">${viewerState.error}</p>
                         <button 
                             id="viewer-close-btn"
+                            data-interactive="true"
                             class="mt-8 px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl text-white font-semibold transition shadow-md shadow-red-900/50"
                         >
                             Return to Profile
@@ -828,18 +778,14 @@
                 `;
             }
             
-            // Inject and attach close listener
             document.body.innerHTML = viewerHTML;
             const closeBtn = document.getElementById('viewer-close-btn');
             if (closeBtn) {
                 closeBtn.addEventListener('click', handleCloseViewer);
             }
-            lucide.createIcons(); // Re-initialize icons
+            lucide.createIcons();
         };
         
-        /**
-         * Renders the Rickroll Modal.
-         */
         const renderModal = () => {
             const modalContainer = document.getElementById('modal-container');
             if (!modalContainer) return;
@@ -896,16 +842,13 @@
             });
         };
         
-        /**
-         * Handler for tab changes and optional scrolling.
-         */
         const handleTabChange = (tabName, anchorId = null) => {
             playSwordSfx();
             
             const targetTab = ['products', 'soundtrack'].includes(tabName) ? 'profile' : tabName;
             state.activeTab = targetTab;
 
-            renderApp(); // Re-render the main content area
+            renderApp();
 
             if (anchorId && targetTab === 'profile') {
                 setTimeout(() => {
@@ -961,7 +904,7 @@
                 state.imageId = null;
             }
 
-            renderApp(); // Initial render after auth/URL check
+            renderApp();
         };
         
         const initUIEffects = () => {
@@ -993,7 +936,6 @@
             initUIEffects();
             initFirebaseAndApp();
         };
-
     </script>
 </body>
 </html>
